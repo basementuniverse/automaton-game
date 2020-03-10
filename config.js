@@ -1,0 +1,30 @@
+const config = {
+    debug: true,
+    tickRate: 30,
+    unitScale: 1.5,
+    icons: {
+        storage: 'a',
+        star: 'b',
+        sad1: 'c',
+        hungry: 'd',
+        sad3: 'e',
+        miner: 'f',
+        happy2: 'g',
+        happy3: 'h',
+        neutral: 'i',
+        train: 'j',
+        happy1: 'k',
+        sad2: 'l',
+        dead: 'm',
+        load: 'o',
+        save: 'n',
+        new: 'p',
+        delete: 'q',
+        select: 'r',
+        play: 's',
+        pause: 't',
+        download: 'v',
+        upload: 'u',
+        scope: 'w'
+    }
+};
