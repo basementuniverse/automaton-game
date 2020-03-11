@@ -226,7 +226,12 @@ class Toolbar {
         Debug.show(
             'tool',
             this.hovered !== null ? this.buttonLabel(this.buttons[this.hovered]) : '',
-            null, false
+            {
+                position: input.position,
+                backgroundColour: 'black',
+                showLabel: false,
+                hide: this.hovered === null
+            }
         );
     }
 

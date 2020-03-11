@@ -2,16 +2,20 @@ class Debug {
     static instance;
     values;
     settings = {
-        margin: 10,
-        padding: 4,
-        lineHeight: 12,
+        order: 0,
+        hide: false,
+        position: null,
+        colour: 'white',
+        backgroundColour: 'rgba(0, 0, 0, 0.5)',
         font: '10pt Lucida Console, monospace',
-        textColour: 'white',
-        backgroundColour: 'rgba(0, 0, 0, 0.5)'
+        lineHeight: 12,
+        showLabel: true,
+        margin: 10,
+        padding: 4
     };
 
     constructor() {
-        this.values = [];
+        this.values = {};
     }
 
     static initialise() {
@@ -20,12 +24,12 @@ class Debug {
         }
     }
 
-    static show(label, value, colour = null, showLabel = true) {
+    static show(label, value, settings = {}) {
         Debug.instance.values[label] = {
-            label: label,
             value: value,
-            colour: colour,
-            showLabel: showLabel
+            ...Debug.instance.settings,
+            ...settings,
+            order: settings.order || (Object.keys(Debug.instance.values).length + 1)
         };
     }
     
@@ -35,38 +39,39 @@ class Debug {
         context.save();
         context.setTransform(1, 0, 0, 1, 0, 0);
         
-        let y = debug.settings.margin;
-        for (const i in debug.values) {
-            if (!debug.values.hasOwnProperty(i)) {
-                continue;
+        const labels = Object.keys(debug.values).sort((a, b) => debug.values[a].order - debug.values[b].order);
+        let row = 0, value, p;
+        labels.forEach(label => {
+            value = debug.values[label];
+            p = value.position;
+            if (value.hide) { return; }
+            if (p === null) {
+                row += (value.lineHeight + 2 * value.padding);
+                p = vec(value.margin, row);
             }
-
-            Debug.drawValue(context, debug.settings.margin, y, debug.values[i], debug.settings);
-            y += (debug.settings.lineHeight + debug.settings.padding * 2);
-        }
-
+            Debug.drawValue(context, label, value, p);
+        });
         context.restore();
     }
 
-    static drawValue(context, x, y, value, settings) {
+    static drawValue(context, label, value, position) {
         context.save();
-        context.font = settings.font;
+        context.font = value.font;
         context.textBaseline = "top";
-
-        const text = value.showLabel ? `${value.label}: ${value.value}` : `${value.value}`;
+        const text = value.showLabel ? `${label}: ${value.value}` : `${value.value}`;
         const backgroundSize = {
-            x: context.measureText(text).width + settings.padding * 2,
-            y: settings.lineHeight + settings.padding * 2
+            x: context.measureText(text).width + value.padding * 2,
+            y: value.lineHeight + value.padding * 2
         };
-        context.fillStyle = settings.backgroundColour;
+        context.fillStyle = value.backgroundColour;
         context.fillRect(
-            x - settings.padding,
-            y - settings.padding,
+            position.x - value.padding,
+            position.y - value.padding,
             backgroundSize.x,
             backgroundSize.y
         );
-        context.fillStyle = value.colour || settings.textColour;
-        context.fillText(text, x, y);
+        context.fillStyle = value.colour;
+        context.fillText(text, position.x, position.y);
         context.restore();
     }
 }
