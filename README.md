@@ -11,21 +11,10 @@ AUT0M4T0N
 
 ## Ideas
 
-Consumers have health (initially 100, min 0 max 250; configurable)
-Gradually reduce health slowly
-When unhappy, reduce health depending on level of product
-When neutral, keep health constant
-When happy, increase health depending on level of product
-
-Consumers output power depending on health, colour depending on last product consumed
-
-OR:
-all units except power stations and resources require power to tick
-(ie. the powermap must be > 0 in their tile)
-
 consumers output workers
     constant output tick rate
     worker amount depends on consumer happiness
+    worker colour is consumer current food filtered by consumer requirements
 worker packet has r, g, b amounts
 cities store workers (add worker amount to internal capacity; no maximum)
 workers travel on roads (can cross pipes)
@@ -34,17 +23,19 @@ factories and refiners have internal worker amount
     decrement every tick
     if workers <= 0, don't progress (or progress very slowly?)
     if workers > some threshold amount, progress at fast rate
-    progress depends on worker amounts:
-        more red = 
-        more green = 
-        more blue = 
+    progress rate depends on worker amounts and power input - scale and sum each channel (worker r * power r, ...)
 
 power stations
     output colours depending on products, like consumers do now
     no colour filter
     require workers just like factories and refiners
+all units except power stations and resources require power to tick
+(ie. the powermap must be > 0 in their tile)
 
-
+triangle of requirements: 
+    power - requires products and workers
+    workers - requires power and products
+    products - requires power and workers
 
 ## Instructions
 

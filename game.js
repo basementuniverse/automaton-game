@@ -8,16 +8,8 @@ class Game {
     units = [];
     unitMap = null;
     lineTool = null;
+    powerMap = null;
     paused = false;
-    powerMap = {
-        state: [],
-        r: [],
-        g: [],
-        b: []
-    };
-    powerLayer = null;
-    powerTicks = 0;
-    powerRate = 2;
     width = 32;
     height = 32;
     toolbar = null;
@@ -46,9 +38,7 @@ class Game {
         // Setup input
         this.input = new Input(this);
         this.unitMap = new UnitMap();
-
-        // Create power map layer
-        this.powerLayer = this.buffer.addLayer();
+        this.powerMap = new PowerMap(this);
 
         // Fill background grid
         const layer = this.buffer.addLayer();
@@ -83,38 +73,6 @@ class Game {
         this.unitMap.clear();
     }
 
-    powerMapNeighbours(x, y) {
-        const result = [];
-        for (let xx = x - 1; xx <= x + 1; xx++) {
-            for (let yy = y - 1; yy <= y + 1; yy++) {
-                if (xx == x && yy == y) { continue; }
-                result.push(this.getPowerMap(xx, yy));
-            }
-        }
-        return result;
-    }
-
-    getPowerMap(x, y) {
-        const i = utility.index(x, y, this.width);
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-            return { state: '', r: 0, g: 0, b: 0 };
-        }
-        return {
-            state: this.powerMap.state[i] || '',
-            r: this.powerMap.r[i] || 0,
-            g: this.powerMap.g[i] || 0,
-            b: this.powerMap.b[i] || 0
-        };
-    }
-
-    setPowerMap(x, y, state, r, g, b) {
-        const i = utility.index(x, y, this.width);
-        this.powerMap.state[i] = state;
-        this.powerMap.r[i] = r;
-        this.powerMap.g[i] = g;
-        this.powerMap.b[i] = b;
-    }
-
     save() {
         return JSON.stringify(this.units.map(u => u.serialize()));
     }
@@ -126,7 +84,7 @@ class Game {
     }
 
     update() {
-        this.ticks++;// Debug.show('ticks', this.ticks++);
+        Debug.show('ticks', this.ticks++);
         
         // Update toolbar
         const oldTool = this.toolbar.tool;
@@ -201,72 +159,9 @@ class Game {
             for (let unit of this.units) {
                 unit.update(this.unitMap);
             }
-        }
 
-        // Update power map
-        if (!this.paused) {
-            if (this.powerTicks > this.powerRate) {
-                this.powerTicks = 0;
-                const newPowerMap = { state: [], r: [], g: [], b: [] };
-                const cornerCoefficient = 0.5;
-                const unitCoefficient = 0.35;
-                const ns = 2; // attenuation amount per tile when no unit here, single neighbour close in value
-                const us = ns * unitCoefficient; // unit here, single neighbour close in value
-                const nm = ns * cornerCoefficient; // no unit here, multiple neighbours close in value
-                const um = us * cornerCoefficient; // unit here, multiple neighbours close in value
-                for (let x = 0; x < this.width; x++) {
-                    for (let y = 0; y < this.height; y++) {
-                        let s = '', r = 0, g = 0, b = 0;
-                        const i = utility.index(x, y, this.width);
-                        const t = this.getPowerMap(x, y);
-                        const neighbours = this.powerMapNeighbours(x, y);
-                        if (t.state == '' && neighbours.some(n => n.state == 'h')) {
-                            s = 'h';
-                        }
-                        if (t.state == 'h') {
-                            s = 't';
-                        }
-                        if (t.state == 't') {
-                            s = '';
-                        }
-                        r = Math.max(0, ...neighbours.map(n => n.r));
-                        g = Math.max(0, ...neighbours.map(n => n.g));
-                        b = Math.max(0, ...neighbours.map(n => n.b));
-                        const u = this.unitMap.hasUnits(vec(x, y));
-                        if (neighbours.filter(n => Math.floor(n.r) == Math.floor(r)).length > 1) { // corner
-                            r -= u ? um : nm;
-                        } else { // edge
-                            r -= u ? us : ns;
-                        }
-                        if (neighbours.filter(n => Math.floor(n.g) == Math.floor(g)).length > 1) {
-                            g -= u ? um : nm;
-                        } else {
-                            g -= u ? us : ns;
-                        }
-                        if (neighbours.filter(n => Math.floor(n.b) == Math.floor(b)).length > 1) {
-                            b -= u ? um : nm;
-                        } else {
-                            b -= u ? us : ns;
-                        }
-                        if (r + g + b <= 0) {
-                            s = '';
-                        }
-                        r = Math.max(0, r);
-                        g = Math.max(0, g);
-                        b = Math.max(0, b);
-                        newPowerMap.state[i] = s;
-                        newPowerMap.r[i] = r;
-                        newPowerMap.g[i] = g;
-                        newPowerMap.b[i] = b;
-                        this.powerLayer.setTile(
-                            x, y, ' ', null,
-                            `rgb(${Math.clamp(Math.floor(r * 16), 0, 255)}, ${Math.clamp(Math.floor(g * 16), 0, 255)}, ${Math.clamp(Math.floor(b * 16), 0, 255)})`
-                        );
-                    }
-                }
-                this.powerMap = newPowerMap;
-            }
-            this.powerTicks++;
+            // Update power map
+            this.powerMap.update();
         }
 
         // Update input

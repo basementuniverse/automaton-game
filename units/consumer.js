@@ -138,7 +138,7 @@ class Consumer extends Unit {
         if (this.currentFood) {
             const heartbeat = Math.max(0, utility.triangleWave(2, 1.5, this.ticks / config.tickRate) - 1);
             const spread = (this.currentFood.level * 2) + 4;
-            this.game.setPowerMap(
+            this.game.powerMap.set(
                 this.position.x, this.position.y,
                 'h',
                 this.output[0] * spread + heartbeat,// this.currentFood.colour[0] * spread + heartbeat,
