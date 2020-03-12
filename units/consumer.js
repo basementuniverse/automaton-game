@@ -1,5 +1,6 @@
 class Consumer extends Unit {
-    feedRate = 90;
+    baseFeedRate = 90;
+    minFeedRate = 30;
     progress = 0;
     currentFood = null;
     requirement = 0;
@@ -12,6 +13,7 @@ class Consumer extends Unit {
         [0, 1, 1],
         [1, 1, 1]
     ];
+    lockedRequirements = [null, null, null];
     state = 0;
     states = [
         'hungry',
@@ -23,42 +25,33 @@ class Consumer extends Unit {
         'sad1',
         'sad2',
         'sad3',
-        'sad4'
+        'sad4',
+        'full'
     ];
-    output = [0, 0, 0];
     layer = null;
-    icons = {
-        hungry: config.icons.hungry,
-        sad4: config.icons.dead,
-        sad3: config.icons.sad3,
-        sad2: config.icons.sad2,
-        sad1: config.icons.sad1,
-        neutral: config.icons.neutral,
-        happy1: config.icons.happy1,
-        happy2: config.icons.happy2,
-        happy3: config.icons.happy3,
-        happy4: config.icons.star
-    };
     layer2 = null;
 
-    constructor(game, position, requirement = 0, state = 0) {
+    constructor(game, position, requirement = 0, state = 0, lockedRequirements = null) {
         super(game, position);
 
         this.inputs = ['t', 'b', 'l', 'r'];
+        this.outputs = ['t', 'b', 'l', 'r'];
         this.tickRate = 8;
-        this.capacity = 1;
+        this.productCapacity = 1;
+        this.workerCapacity = 8;
         this.requirement = requirement;
         this.state = state;
+        this.lockedRequirements = lockedRequirements || [null, null, null];
 
         const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = 'white';
         layer.centered = true;
         layer.font = 'automaton';
-        layer.text = this.icons[this.states[this.state]];
+        layer.text = config.icons[this.states[this.state]];
         layer.scale = vec(1.1);
         this.layer = layer;
 
-        const layer2 = this.activeTile.addLayer(null);
+        const layer2 = this.activeTile.addLayer();
         layer2.centered = true;
         layer2.text = String.fromCharCode(8226);
         layer2.offset = vec(0.4);
@@ -78,13 +71,25 @@ class Consumer extends Unit {
         this.setRequirementBadge();
     }
 
-    setRequirementBadge() {
+    getActualRequirements() {
         const r = this.requirements[this.requirement];
-        this.layer2.foreground = utility.colourString(r);//`rgb(${r[0] * 255}, ${r[1] * 255}, ${r[2] * 255})`;
+        return this.lockedRequirements.map((c, i) => c === null ? r[i] : c);
+    }
+
+    setRequirementBadge() {
+        const c = this.getActualRequirements();
+        if (c[0] === 0 && c[1] === 0 && c[2] === 0) {
+            this.layer2.foreground = '#333';
+        } else {
+            this.layer2.foreground = utility.colourString(this.getActualRequirements());
+        }
     }
 
     checkRequirements() {
-        if (this.currentFood === null) {
+        const oldState = this.state;
+        if (this.workerAmount >= this.workerCapacity) {
+            this.state = 10; // full
+        } else if (this.currentFood === null) {
             this.state = 0; // hungry
             this.output = [0, 0, 0];
         } else {
@@ -92,20 +97,36 @@ class Consumer extends Unit {
             // neutral if getting some of what we require
             // happy if getting all of what we require
             const R = 0, G = 1, B = 2;
-            const r = this.requirements[this.requirement];
+            const r = this.getActualRequirements();
             const f = this.currentFood.colour;
             
             let state = 1; // neutral
             if ([R, G, B].every(c => !r[c] || !f[c])) {
-                state = Math.clamp(6 + this.currentFood.level, 6, 8); // sad
-            }
-            if ([R, G, B].every(c => !r[c] || f[c])) {
-                state = Math.clamp(2 + this.currentFood.level, 2, 4); // happy
+                state = Math.clamp(6 + this.currentFood.level, 6, 9); // sad
+            } else if ([R, G, B].every(c => !r[c] || f[c])) {
+                state = Math.clamp(2 + this.currentFood.level, 2, 5); // happy
             }
             this.state = state;
-            this.output = [R, G, B].map(c => (r[c] && f[c]) ? 1 : 0);
         }
-        this.layer.text = this.icons[this.states[this.state]];
+        if (this.state !== oldState) {
+            if (this.state === 5) {  // happy 4, lock a channel to 1
+                const r = this.getActualRequirements();
+                for (let i = 0; i < r.length; i++) {
+                    if (!r[i] && this.currentFood.colour[i]) {
+                        this.lockedRequirements[i] = 1;
+                        break;
+                    }
+                }
+            }
+            if (this.state === 9) {  // sad 4, lock a channel to 0
+                const i = this.getActualRequirements().findIndex(r => r === 1);
+                if (i > -1) {
+                    this.lockedRequirements[i] = 0;
+                }
+            }
+            this.setRequirementBadge();
+        }
+        this.layer.text = config.icons[this.states[this.state]];
     }
 
     dispose() {
@@ -118,17 +139,37 @@ class Consumer extends Unit {
     tick(map) {
         const inputUnits = this.getInputs(map);
         for (let unit of inputUnits) {
-            if (unit.amount > 0 && this.amount < this.capacity && (unit instanceof Pipe)) {
-                this.give(unit.take());
+            if (unit.productAmount > 0 && this.productAmount < this.productCapacity && (unit instanceof Pipe)) {
+                this.giveProduct(unit.takeProduct());
             }
         }
     }
 
+    takeProduct() {
+        return null;
+    }
+
+    get feedRate() {
+        if (this.currentFood === null) {
+            return this.baseFeedRate;
+        }
+        const power = this.game.powerMap.get(this.position.x, this.position.y);
+        const a = this.currentFood;
+        const c = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
+        return Math.max(this.minFeedRate, this.baseFeedRate - utility.dotColour(c, power));
+    }
+
     update(map) {
         super.update(map);
-        if (this.currentFood === null && this.amount >= 1) {
-            this.currentFood = this.inventory.shift();
+        if (this.currentFood === null && this.productAmount >= 1 && this.workerAmount < this.workerCapacity) {
+            this.currentFood = this.productInventory.shift();
             this.currentFood.dispose();
+            this.checkRequirements();
+
+            // If we're happy, produce a worker
+            if (this.state >= 2 && this.state <= 5) {
+                this.giveWorker(new Worker(this.game, this.currentFood.level));
+            }
         }
         if (this.progress >= this.feedRate) {
             this.progress = 0;
@@ -136,15 +177,6 @@ class Consumer extends Unit {
         }
         this.checkRequirements();
         if (this.currentFood) {
-            const heartbeat = Math.max(0, utility.triangleWave(2, 1.5, this.ticks / config.tickRate) - 1);
-            const spread = (this.currentFood.level * 2) + 4;
-            this.game.powerMap.set(
-                this.position.x, this.position.y,
-                'h',
-                this.output[0] * spread + heartbeat,// this.currentFood.colour[0] * spread + heartbeat,
-                this.output[1] * spread + heartbeat,// this.currentFood.colour[1] * spread + heartbeat,
-                this.output[2] * spread + heartbeat// this.currentFood.colour[2] * spread + heartbeat
-            );
             this.progress++;
         }
     }
@@ -154,6 +186,7 @@ class Consumer extends Unit {
             ...super.serialize(),
             progress: this.progress,
             requirement: this.requirement,
+            lockedRequirements: this.lockedRequirements,
             state: this.state
         };
         if (this.currentFood) {
@@ -163,7 +196,7 @@ class Consumer extends Unit {
     }
 
     static deserialize(game, data) {
-        const unit = new Consumer(game, data.position, data.requirement, data.state);
+        const unit = new Consumer(game, data.position, data.requirement, data.state, data.lockedRequirements);
         if (data.currentFood) {
             unit.currentFood = Product.deserialize(game, data.currentFood, unit);
         }

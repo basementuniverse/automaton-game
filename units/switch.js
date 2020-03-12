@@ -23,7 +23,8 @@ class Switch extends Unit {
 
         this.inputs = ['t', 'l', 'r', 'b'];
         this.outputs = [];
-        this.capacity = 1;
+        this.productCapacity = 1;
+        this.workerCapacity = 1;
         this.tickRate = 30;
         this.mode = mode;
         this.rotation = rotation;
@@ -34,14 +35,14 @@ class Switch extends Unit {
         layer.text = String.fromCharCode(8865);
         layer.scale = vec(config.unitScale);
 
-        const layer2 = this.activeTile.addLayer(null);
+        const layer2 = this.activeTile.addLayer();
         layer2.foreground = 'white';
         layer2.centered = true;
         layer2.text = String.fromCharCode(9656);
         layer2.offset = vec(0, -0.07);
         this.layer2 = layer2;
 
-        const layer3 = this.activeTile.addLayer(null);
+        const layer3 = this.activeTile.addLayer();
         layer3.foreground = 'yellow';
         layer3.centered = true;
         layer3.offset = vec(0, -0.4);
@@ -77,11 +78,14 @@ class Switch extends Unit {
     }
 
     tick(map) {
-        if (this.amount < this.capacity) {
+        if (this.productAmount < this.productCapacity || this.workerAmount < this.workerCapacity) {
             const inputUnits = this.getInputs(map);
             for (let unit of inputUnits) {
-                if (unit.amount > 0 && this.amount < this.capacity && (unit instanceof Pipe)) {
-                    this.give(unit.take());
+                if (unit.productAmount > 0 && this.productAmount < this.productCapacity && (unit instanceof Pipe)) {
+                    this.giveProduct(unit.takeProduct());
+                }
+                if (unit.workerAmount > 0 && this.workerAmount < this.workerCapacity && (unit instanceof Path)) {
+                    this.giveWorker(unit.takeWorker());
                 }
             }
         }

@@ -1,4 +1,4 @@
-class Storage extends Unit {
+class City extends Unit {
     type = 0;
     types = [
         'small',
@@ -17,14 +17,15 @@ class Storage extends Unit {
         this.inputs = ['t', 'b', 'l', 'r'];
         this.outputs = ['t', 'b', 'l', 'r'];
         this.type = type;
-        this.productCapacity = this.capacities[this.types[this.type]];
+        this.workerCapacity = this.capacities[this.types[this.type]];
         this.tickRate = 8;
 
         const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = 'white';
         layer.centered = true;
         layer.font = 'automaton';
-        layer.text = config.icons.storage;
+        layer.text = config.icons.city;
+        layer.scale = vec(1.2);
     }
 
     tapped() {
@@ -32,15 +33,15 @@ class Storage extends Unit {
         if (this.type >= this.types.length) {
             this.type = 0;
         }
-        this.productCapacity = this.capacities[this.types[this.type]];
+        this.workerCapacity = this.capacities[this.types[this.type]];
     }
 
     tick(map) {
-        if (this.productAmount < this.productCapacity) {
+        if (this.workerAmount < this.workerCapacity) {
             const inputUnits = this.getInputs(map);
             for (let unit of inputUnits) {
-                if (unit.productAmount > 0 && this.productAmount < this.productCapacity && (unit instanceof Pipe)) {
-                    this.giveProduct(unit.takeProduct());
+                if (unit.workerAmount > 0 && this.workerAmount < this.workerCapacity && (unit instanceof Path)) {
+                    this.giveWorker(unit.takeWorker());
                 }
             }
         }
@@ -48,7 +49,7 @@ class Storage extends Unit {
 
     update(map) {
         super.update(map);
-        this.debugLayer.text = `${this.productAmount} / ${this.productCapacity}`;
+        this.debugLayer.text = `${this.workerAmount} / ${this.workerCapacity}`;
     }
 
     serialize() {
@@ -59,6 +60,6 @@ class Storage extends Unit {
     }
 
     static deserialize(game, data) {
-        return new Storage(game, data.position, data.type);
+        return new City(game, data.position, data.type);
     }
 }

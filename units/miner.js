@@ -6,22 +6,21 @@ class Miner extends Unit {
         super(game, position);
 
         this.outputs = ['t', 'b', 'l', 'r'];
-        this.capacity = 8;
+        this.productCapacity = 8;
         this.tickRate = 30;
 
         const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = 'white';
         layer.font = 'automaton';
-        layer.text = config.icons.miner;//String.fromCharCode(9676);
+        layer.text = config.icons.miner;
         layer.centered = true;
-        // layer.scale = vec(config.unitScale);
         this.layer = layer;
     }
 
     exclusivity = u => (u instanceof Resource);
 
     checkRunning(map) {
-        return this.amount < this.capacity && map.getUnits(this.position).some(u => (u instanceof Resource));
+        return this.productAmount < this.productCapacity && map.getUnits(this.position).some(u => (u instanceof Resource));
     }
 
     update(map) {
@@ -38,25 +37,10 @@ class Miner extends Unit {
         super.update(map);
     }
 
-    give(product) {
-        super.give(product);
-        if (product) {
-            // product.activeTile.opacity = 0;
-        }
-    }
-
-    take() {
-        const product = super.take();
-        if (product) {
-            // product.activeTile.opacity = 1;
-        }
-        return product;
-    }
-
     tick(map) {
         if (this.running) {
             for (let unit of map.getUnits(this.position).filter(u => (u instanceof Resource))) {
-                this.give(unit.take());
+                this.giveProduct(unit.takeProduct());
             }
         }
     }

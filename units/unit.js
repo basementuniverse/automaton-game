@@ -4,8 +4,10 @@ class Unit {
     activeTile = null;
     inputs = [];
     outputs = [];
-    capacity = 0;
-    inventory = [];
+    productCapacity = 0;
+    workerCapacity = 0;
+    productInventory = [];
+    workerInventory = [];
     offsets = {
         t: vec(0, -1),
         b: vec(0, 1),
@@ -34,24 +36,34 @@ class Unit {
         this.debugLayer.font = 'monospace';
         this.debugLayer.fontStyle = 'bold';
         this.debugLayer.outline = '0.3 black';
-        this.debugLayer.text = `${this.amount}`;
+        this.debugLayer.text = `${this.productAmount}`;
         this.debugLayer.scale = vec(0.3);
         this.debugLayer.offset = vec(-0.5);
     }
 
-    get amount() {
-        return this.inventory.length;
+    get productAmount() {
+        return this.productInventory.length;
     }
 
-    clearInventory() {
-        this.inventory.forEach(i => i.dispose());
-        this.inventory = [];
+    get workerAmount() {
+        return this.workerInventory.length;
+    }
+
+    clearProducts() {
+        this.productInventory.forEach(i => i.dispose());
+        this.productInventory = [];
+    }
+
+    clearWorkers() {
+        this.workerInventory.forEach(i => i.dispose());
+        this.workerInventory = [];
     }
 
     exclusivity = u => false;
 
     dispose() {
-        this.clearInventory();
+        this.clearProducts();
+        this.clearWorkers();
         this.game.tily.activeBuffer.removeActiveTile(this.activeTile);
         this.disposed = true;
     }
@@ -84,21 +96,32 @@ class Unit {
 
     tick(map) {}
 
-    give(product) {
+    giveProduct(product) {
         if (product) {
-            this.inventory.push(product);
-            // product.activeTile.position = this.position;
+            this.productInventory.push(product);
         }
     }
 
-    take() {
-        if (this.amount > 0) {
-            return this.inventory.shift();
+    takeProduct() {
+        if (this.productAmount > 0) {
+            return this.productInventory.shift();
+        }
+    }
+
+    giveWorker(worker) {
+        if (worker) {
+            this.workerInventory.push(worker);
+        }
+    }
+
+    takeWorker() {
+        if (this.workerAmount > 0) {
+            return this.workerInventory.shift();
         }
     }
 
     update(map) {
-        this.debugLayer.text = `${this.amount}`;
+        this.debugLayer.text = `${this.productAmount}`;
         if (this.ticks <= 0) {
             this.tick(map);
             this.ticks = this.tickRate;
@@ -112,8 +135,8 @@ class Unit {
             position: this.position,
             inputs: this.inputs,
             outputs: this.outputs,
-            capacity: this.capacity,
-            inventory: this.inventory.map(p => p.serialize()),
+            productInventory: this.productInventory.map(p => p.serialize()),
+            workerInventory: this.workerInventory.map(p => p.serialize()),
             ticks: this.ticks
         };
     }
@@ -133,13 +156,19 @@ class Unit {
             case 'CheatBox': unit = CheatBox.deserialize(game, data); break;
             case 'Switch': unit = Switch.deserialize(game, data); break;
             case 'Scope': unit = Scope.deserialize(game, data); break;
+            case 'Path': unit = Path.deserialize(game, data); break;
+            case 'City': unit = City.deserialize(game, data); break;
+            case 'PowerStation': unit = PowerStation.deserialize(game, data); break;
             default: break;
         }
         if (unit) {
-            unit.ticks = data.ticks || 0;
-            for (let p of data.inventory.map(d => Product.deserialize(game, d, unit))) {
-                unit.give(p);
+            for (let p of data.productInventory.map(d => Product.deserialize(game, d, unit))) {
+                unit.giveProduct(p);
             }
+            for (let w of data.workerInventory.map(d => Worker.deserialize(game, d, unit))) {
+                unit.giveWorker(w);
+            }
+            unit.ticks = data.ticks || 0;
             return unit;
         }
         return null;

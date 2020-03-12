@@ -42,10 +42,10 @@ class UnitMap {
     }
 
     canPlace(p, unit) {
-        if (unit instanceof Pipe) {
+        if (unit instanceof Pipe || unit instanceof Path) {
             const units = this.getUnits(p);
             return units.every(u => (
-                u instanceof Pipe &&
+                (u instanceof Pipe || u instanceof Path) &&
                 u.inputs[0] !== unit.inputs[0] &&
                 u.inputs[0] !== unit.outputs[0] &&
                 u.outputs[0] !== unit.inputs[0] &&

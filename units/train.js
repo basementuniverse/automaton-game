@@ -35,7 +35,8 @@ class Train extends Unit {
 
         this.inputs = ['t', 'b', 'l', 'r'];
         this.outputs = ['t', 'b', 'l', 'r'];
-        this.capacity = 16;
+        this.productCapacity = 16;
+        this.workerCapacity = 16;
         this.tickRate = 8;
         this.moveRate = this.speeds[this.types[this.type]];
 
@@ -43,11 +44,10 @@ class Train extends Unit {
         layer.foreground = 'white';
         layer.centered = true;
         layer.font = 'automaton';
-        layer.text = config.icons.train;//String.fromCharCode(8852);
-        // layer.scale = vec(config.unitScale);
+        layer.text = config.icons.train;
         this.layer = layer;
 
-        const layer2 = this.activeTile.addLayer(null);
+        const layer2 = this.activeTile.addLayer();
         layer2.foreground = 'yellow';
         layer2.centered = true;
         layer2.offset = vec(0, -0.3);
@@ -71,25 +71,17 @@ class Train extends Unit {
     }
 
     tick(map) {
-        if (this.amount < this.capacity) {
+        if (this.productAmount < this.productCapacity || this.workerAmount < this.workerCapacity) {
             const inputUnits = this.getInputs(map);
             for (let unit of inputUnits) {
-                if (unit.amount > 0 && this.amount < this.capacity && (unit instanceof Pipe)) {
-                    this.give(unit.take());
+                if (unit.productAmount > 0 && this.productAmount < this.productCapacity && (unit instanceof Pipe)) {
+                    this.giveProduct(unit.takeProduct());
+                }
+                if (unit.workerAmount > 0 && this.workerAmount < this.workerCapacity && (unit instanceof Path)) {
+                    this.giveWorker(unit.takeWorker());
                 }
             }
         }
-    }
-
-    give(product) {
-        super.give(product);
-        // product.activeTile.opacity = 0;
-    }
-
-    take() {
-        const product = super.take();
-        // product.activeTile.opacity = 1;
-        return product;
     }
 
     move(offset) {
@@ -100,22 +92,11 @@ class Train extends Unit {
         this.targetPosition = p;
         this.activeTile.animateOffset(offset.x, offset.y, { time: this.moveRate / config.tickRate }).then(() => {
             this.position = p;
-            this.inventory.forEach(i => {
-                i.position = p;
-            });
             this.activeTile.position = p;
             this.activeTile.offset = vec();
             this.moving = false;
             this.targetPosition = null;
         });
-        // this.inventory.forEach(i => {
-        //     i.activeTile.animations = [];
-        //     i.activeTile.offset = vec();
-        //     i.activeTile.animateOffset(offset.x, offset.y, { time: this.moveRate / config.tickRate }).then(() => {
-        //         i.activeTile.position = p;
-        //         i.activeTile.offset = vec();
-        //     });
-        // });
     }
 
     update(map) {
@@ -131,15 +112,14 @@ class Train extends Unit {
                     this.move(this.offsets[tracks[0][outputs][0]]);
                 } else {
                     this.inverted = !this.inverted;
-                    // this.activeTile.flip = this.inverted;
                 }
             }
         }
         if (this.targetPosition) {
-            // this.activeTile.flip = this.targetPosition.x < this.position.x;
             this.layer.scale = this.targetPosition.x < this.position.x ? vec(-1, 1) : vec(1);
         }
         super.update(map);
+        this.debugLayer.text = `${this.productAmount} : ${this.workerAmount}`;
     }
 
     serialize() {

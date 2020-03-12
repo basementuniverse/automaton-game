@@ -1,17 +1,17 @@
 class Track extends Unit {
     icons = {
-        t_r: 9492,
-        t_l: 9496,
-        t_b: 9474,
-        r_t: 9492,
-        r_l: 9472,
-        r_b: 9484,
-        l_r: 9472,
-        l_b: 9488,
-        l_t: 9496,
-        b_r: 9484,
-        b_l: 9488,
-        b_t: 9474,
+        t_r: 9584,
+        t_l: 9583,
+        t_b: 9550,
+        r_t: 9584,
+        r_l: 9548,
+        r_b: 9581,
+        l_r: 9548,
+        l_b: 9582,
+        l_t: 9583,
+        b_r: 9581,
+        b_l: 9582,
+        b_t: 9550,
     };
 
     exclusivity = u => (u instanceof Train);
@@ -21,16 +21,13 @@ class Track extends Unit {
 
         this.inputs = [input];
         this.outputs = [output];
-        this.capacity = 0;
+        this.productCapacity = 0;
 
         const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = '#888';
         layer.centered = true;
         layer.text = String.fromCharCode(this.icons[`${input}_${output}`]);
         layer.scale = vec(1.6, 1);
-        if ((input == 't' && output == 'b') || (input == 'b' && output == 't')) {
-            layer.offset = vec(0.075, 0);
-        }
 
         // Hide amount readout
         this.debugLayer.opacity = 0;

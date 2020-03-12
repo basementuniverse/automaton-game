@@ -41,7 +41,7 @@ class Resource extends Unit {
         }
     }
 
-    take() {
+    takeProduct() {
         if (!this.hasResource) {
             return null;
         }

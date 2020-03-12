@@ -17,7 +17,8 @@ class CheatBox extends Unit {
         this.inputs = ['t', 'b', 'l', 'r'];
         this.outputs = ['t', 'b', 'l', 'r'];
         this.colour = colour;
-        this.capacity = 1;
+        this.productCapacity = 1;
+        this.workerCapacity = 1;
         this.tickRate = 4;
 
         const layer = this.activeTile.addLayer(null, -1);
@@ -30,7 +31,7 @@ class CheatBox extends Unit {
 
     setColour() {
         const r = this.colours[this.colour];
-        this.layer.foreground = utility.colourString(r);//`rgb(${r[0] * 255}, ${r[1] * 255}, ${r[2] * 255})`;
+        this.layer.foreground = utility.colourString(r);
     }
 
     tapped() {
@@ -39,33 +40,52 @@ class CheatBox extends Unit {
             this.colour = 0;
         }
         this.setColour();
-        this.clearInventory();
+        this.clearProducts();
+        this.clearWorkers();
     }
 
     tick(map) {
         const inputUnits = this.getInputs(map);
         for (let unit of inputUnits) {
-            if (unit.amount > 0 && (unit instanceof Pipe)) {
-                this.give(unit.take());
+            if (unit.productAmount > 0 && (unit instanceof Pipe)) {
+                this.giveProduct(unit.takeProduct());
+            }
+            if (unit.workerAmount > 0 && (unit instanceof Path)) {
+                this.giveWorker(unit.takeWorker());
             }
         }
     }
 
-    get amount() {
+    get productAmount() {
+        return 1;
+    }
+
+    get workerAmount() {
         return 1;
     }
 
     get level() {
-        return this.inventory.length > 0 ? (this.inventory[0].level + 1) : 0;
+        const p = this.productInventory.length > 0 ? (this.productInventory[0].level + 1) : 0;
+        const w = this.workerInventory.length > 0 ? (this.workerInventory[0].level + 1) : 0;
+        return Math.max(p, w);
     }
 
-    give(product) {
-        this.clearInventory();
-        super.give(product);
+    giveProduct(product) {
+        this.clearProducts();
+        super.giveProduct(product);
     }
 
-    take() {
+    takeProduct() {
         return new Product(this.game, this.level, this.colours[this.colour]);
+    }
+
+    giveWorker(worker) {
+        this.clearWorkers();
+        super.giveWorker(worker);
+    }
+
+    takeWorker() {
+        return new Worker(this.game, this.level);
     }
 
     update(map) {

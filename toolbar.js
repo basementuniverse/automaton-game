@@ -107,7 +107,7 @@ class Toolbar {
             }
         },
         {
-            icon: String.fromCharCode(9475),
+            icon: String.fromCharCode(9474),
             label: 'Pipe',
             tool: 'pipe',
             shortcut: 'Digit3',
@@ -143,7 +143,7 @@ class Toolbar {
             }
         },
         {
-            icon: String.fromCharCode(9474),
+            icon: String.fromCharCode(9550),
             label: 'Road',
             tool: 'track',
             shortcut: 'Digit7',
@@ -184,6 +184,30 @@ class Toolbar {
             tool: 'scope',
             click: game => {
                 this.tool = 'scope';
+            }
+        },
+        {
+            icon: String.fromCharCode(9475),
+            label: 'Path',
+            tool: 'path',
+            click: game => {
+                this.tool = 'path';
+            }
+        },
+        {
+            icon: config.icons.city,
+            label: 'City',
+            tool: 'city',
+            click: game => {
+                this.tool = 'city';
+            }
+        },
+        {
+            icon: config.icons.power2,
+            label: 'Power station',
+            tool: 'powerstation',
+            click: game => {
+                this.tool = 'powerstation';
             }
         },
         {

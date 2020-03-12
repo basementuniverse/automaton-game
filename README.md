@@ -8,52 +8,53 @@ AUT0M4T0N
 [x] refiners
 [x] directional trains, change direction at track end
 [x] switches (pipes with variable input rate, multiple inputs and outputs, loop outputs or lock to one)
-
-## Ideas
-
-consumers output workers
-    constant output tick rate
-    worker amount depends on consumer happiness
-    worker colour is consumer current food filtered by consumer requirements
-worker packet has r, g, b amounts
-cities store workers (add worker amount to internal capacity; no maximum)
-workers travel on roads (can cross pipes)
-also add cars, can travel on tracks, only carries people (some maximum internal capacity)
-factories and refiners have internal worker amount
-    decrement every tick
-    if workers <= 0, don't progress (or progress very slowly?)
-    if workers > some threshold amount, progress at fast rate
-    progress rate depends on worker amounts and power input - scale and sum each channel (worker r * power r, ...)
-
-power stations
-    output colours depending on products, like consumers do now
-    no colour filter
-    require workers just like factories and refiners
-all units except power stations and resources require power to tick
-(ie. the powermap must be > 0 in their tile)
-
-triangle of requirements: 
-    power - requires products and workers
-    workers - requires power and products
-    products - requires power and workers
+[x] workers
+[x] consumers output workers
+[x] paths (pipes for workers)
+[x] cities (storage for workers)
+[x] trains carry workers as well
+[x] update cheatboxes (now handle workers as well)
+[x] update scopes (now display workers as well)
+[x] power stations (emit power, require products and workers)
+[x] factories and refiners require workers
+[x] factories and refiners use power for production/refining rate
+[x] consumers use power for feeding rate
+[x] consumers have terminal states
 
 ## Instructions
 
-Press SPACE to toggle pause
-
-Press Z/X to scroll through the debug menu and select a tool
-
-## Options
-
-* `new` press ENTER with this selected to clear the board and start again
-* `save` press ENTER with this selected to store the board in local storage
-* `load` press ENTER with this selected to load from local storage
-* `upload` press ENTER with this selected to reload the board from an uploaded json file
-* `download` press ENTER with this selected to download the board as a json file
-* `delete` click on units to delete them
-* `select` some units can be modified by clicking on them with this tool
-* `<everything else>` create a unit of this type
+...
 
 ## Units
 
+...
 
+resource - produce a level-0 product (either red, green or blue) every 1s.
+
+miner - mine a resource every 1s.
+
+pipe - transport 1 product at a time.
+
+storage - store 16/32/64 products (click to cycle modes).
+
+factory - capacity of 2 products. when capacity is full, merge them to create a new product. new product colour will be logical AND of the 2 input product colours, and the level will be the higher of the 2 unless they are the same, in which case it will be level + 1. requires worker to operate, and has worker capacity of 1. upon producing an item, the worker level will be decremented. if the worker level drops below 0, the factory will stop producing. production time is reduced when in powered tile - the amount depends on how the 2 input product's colour channels match the power colour in this tile.
+
+refiner - capacity of 1 product. when capacity is full, refine it to make a new product. the new product will have one colour channel filtered out (click to cycle filter modes) and the level will be decremented. requires worker to operate; worker and power requirements identical to factory.
+
+road - trucks move along this road.
+
+truck - can transport 16 products and 16 workers. click to cycle between fast mode (will show '!' icon) and slow mode. use pipes and paths to load and unload.
+
+consumer - 
+
+path - same as pipes, but for workers.
+
+city - same as storage, but for workers.
+
+powerstation - 
+
+switch - has 1 product and 1 worker capacity, and takes input from any side. will only output on one side at a time. click to cycle between right, bottom, left, top and rotate modes. in rotate mode, will rotate every 1s.
+
+scope - 
+
+cheatbox - 

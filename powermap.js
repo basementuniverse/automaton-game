@@ -8,7 +8,7 @@ class PowerMap {
     };
     layer = null;
     cornerCoefficient = 0.5;
-    unitCoefficient = 0.35;
+    unitCoefficient = 0.2;
     attenuationAmount = 2;
     colour = c => Math.clamp(Math.floor(c * 16), 0, 255);
 

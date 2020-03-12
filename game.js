@@ -85,6 +85,7 @@ class Game {
 
     update() {
         Debug.show('ticks', this.ticks++);
+        Debug.show('paused', this.paused ? 'PAUSED' : '', { colour: 'red', showLabel: false });
         
         // Update toolbar
         const oldTool = this.toolbar.tool;
@@ -92,7 +93,7 @@ class Game {
 
         // Handle line tool activation & disposal when the mode changes
         if (this.toolbar.tool !== oldTool) {
-            if (oldTool === 'pipe' || oldTool === 'track') {
+            if (this.lineTool) {
                 this.lineTool.dispose();
                 this.lineTool = null;
             }
@@ -104,6 +105,11 @@ class Game {
             if (this.toolbar.tool === 'track') {
                 this.lineTool = new LineTool(this, (p, i, o) => {
                     this.addUnit(new Track(this, p, i, o));
+                });
+            }
+            if (this.toolbar.tool === 'path') {
+                this.lineTool = new LineTool(this, (p, i, o) => {
+                    this.addUnit(new Path(this, p, i, o));
                 });
             }
         }
@@ -127,24 +133,22 @@ class Game {
                     break;
                 case 'resource': unit = new Resource(this, this.input.tilePosition); break;
                 case 'miner': unit = new Miner(this, this.input.tilePosition); break;
-                case 'pipe':
-                    if (this.lineTool) {
-                        this.lineTool.tapped(this.input.position, this.input.tilePosition, this.input.bufferPosition);
-                    }
-                    break;
                 case 'storage': unit = new Storage(this, this.input.tilePosition); break;
                 case 'factory': unit = new Factory(this, this.input.tilePosition); break;
                 case 'refiner': unit = new Refiner(this, this.input.tilePosition); break;
-                case 'track':
-                    if (this.lineTool) {
-                        this.lineTool.tapped(this.input.position, this.input.tilePosition, this.input.bufferPosition);
-                    }
-                    break;
                 case 'train': unit = new Train(this, this.input.tilePosition); break;
                 case 'consumer': unit = new Consumer(this, this.input.tilePosition); break;
                 case 'cheatbox': unit = new CheatBox(this, this.input.tilePosition); break;
                 case 'switch': unit = new Switch(this, this.input.tilePosition); break;
                 case 'scope': unit = new Scope(this, this.input.tilePosition); break;
+                case 'city': unit = new City(this, this.input.tilePosition); break;
+                case 'powerstation': unit = new PowerStation(this, this.input.tilePosition); break;
+                case 'pipe':
+                case 'track':
+                case 'path':
+                    if (this.lineTool) {
+                        this.lineTool.tapped(this.input.position, this.input.tilePosition, this.input.bufferPosition);
+                    }
                 default: break;
             }
             if (unit) {

@@ -1,17 +1,17 @@
-class Pipe extends Unit {
+class Path extends Unit {
     icons = {
-        t_r: 9492,
-        t_l: 9496,
-        t_b: 9474,
-        r_t: 9492,
-        r_l: 9472,
-        r_b: 9484,
-        l_r: 9472,
-        l_b: 9488,
-        l_t: 9496,
-        b_r: 9484,
-        b_l: 9488,
-        b_t: 9474,
+        t_r: 9495,
+        t_l: 9499,
+        t_b: 9475,
+        r_t: 9495,
+        r_l: 9473,
+        r_b: 9487,
+        l_r: 9473,
+        l_b: 9491,
+        l_t: 9499,
+        b_r: 9487,
+        b_l: 9491,
+        b_t: 9475,
     };
     layer2 = null;
     scale = vec(1.6, 1);
@@ -21,10 +21,10 @@ class Pipe extends Unit {
 
         this.inputs = [input];
         this.outputs = [output];
-        this.productCapacity = 1;
+        this.workerCapacity = 1;
         this.tickRate = 8;
 
-        const layer = this.activeTile.addLayer();
+        const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = '#bbb';
         layer.centered = true;
         layer.text = String.fromCharCode(this.icons[`${input}_${output}`]);
@@ -38,39 +38,32 @@ class Pipe extends Unit {
         layer2.opacity = 0;
         this.layer2 = layer2;
 
-        if ((input == 't' && output == 'b') || (input == 'b' && output == 't')) {
-            layer.offset = layer2.offset = vec(0.075, 0);
-        }
-
         // Hide amount readout
         this.debugLayer.opacity = 0;
     }
 
     tick(map) {
-        if (this.productAmount < this.productCapacity) {
+        if (this.workerAmount < this.workerCapacity) {
             const inputUnits = this.getInputs(map);
             for (let unit of inputUnits) {
-                if (unit.productAmount > 0 && this.productAmount < this.productCapacity) {
-                    this.giveProduct(unit.takeProduct());
+                if (unit.workerAmount > 0 && this.workerAmount < this.workerCapacity) {
+                    this.giveWorker(unit.takeWorker());
                 }
             }
         }
         if (this.layer2.animations.length <= 1) {
             let opacity = 0;
-            let colour = [1, 1, 1];
             const minOpacity = 0.1;
-            const maxLevel = 4;
+            const maxLevel = 3;
             const animationTime = 0.3;
-            if (this.productAmount > 0) {
-                colour = this.productInventory[0].colour;
-                opacity = (Math.min(this.productInventory[0].level, maxLevel) * (1 - minOpacity) / maxLevel) + minOpacity;
+            if (this.workerAmount > 0) {
+                opacity = (Math.min(this.workerInventory[0].level, maxLevel) * (1 - minOpacity) / maxLevel) + minOpacity;
             }
-            this.layer2.animateForeground(utility.colourString(colour), { time: animationTime });
             this.layer2.animateOpacity(opacity, { time: animationTime });
         }
     }
 
     static deserialize(game, data) {
-        return new Pipe(game, data.position, data.inputs[0], data.outputs[0]);
+        return new Path(game, data.position, data.inputs[0], data.outputs[0]);
     }
 }

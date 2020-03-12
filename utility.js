@@ -5,5 +5,6 @@ const utility = {
     triangleWave(a, f, x) {
         let p = 0.5 / f;
         return (a / p) * (p - Math.abs(x % (2 * p) - p));
-    }
+    },
+    dotColour: (a, b) => a.r * b.r + a.g * b.g + a.b * b.b
 };
