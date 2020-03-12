@@ -6,8 +6,8 @@ class Refiner extends Unit {
         [0, 0, 1]
     ];
     filterLabels = 'RGB';
-    baseRefiningRate = 60;
-    minRefiningRate = 15;
+    baseRefiningRate = 120;
+    minRefiningRate = 30;
     progress = 0;
     product = null;
     layer2 = null;
