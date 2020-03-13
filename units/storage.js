@@ -36,14 +36,25 @@ class Storage extends Unit {
     }
 
     tick(map) {
-        if (this.productAmount < this.productCapacity) {
-            const inputUnits = this.getInputs(map);
-            for (let unit of inputUnits) {
-                if (unit.productAmount > 0 && this.productAmount < this.productCapacity && (unit instanceof Pipe)) {
-                    this.giveProduct(unit.takeProduct());
-                }
-            }
+        // Sometimes when storage has multiple inputs and it fills up, it will only take input from one of the inputs
+        // This makes sure we only take input when we have enough room for all of it, so we always get a mix of inputs
+        const inputUnits = this.getInputs(map).filter(u => (
+            (u instanceof Pipe) &&
+            u.productAmount > 0
+        ));
+        if ((this.productAmount + inputUnits.length) < this.productCapacity) {
+            inputUnits.forEach(u => {
+                this.giveProduct(u.takeProduct());
+            });
         }
+        // if (this.productAmount < this.productCapacity) {
+        //     const inputUnits = this.getInputs(map);
+        //     for (let unit of inputUnits) {
+        //         if (unit.productAmount > 0 && this.productAmount < this.productCapacity && (unit instanceof Pipe)) {
+        //             this.giveProduct(unit.takeProduct());
+        //         }
+        //     }
+        // }
     }
 
     update(map) {

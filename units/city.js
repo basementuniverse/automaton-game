@@ -37,14 +37,24 @@ class City extends Unit {
     }
 
     tick(map) {
-        if (this.workerAmount < this.workerCapacity) {
-            const inputUnits = this.getInputs(map);
-            for (let unit of inputUnits) {
-                if (unit.workerAmount > 0 && this.workerAmount < this.workerCapacity && (unit instanceof Path)) {
-                    this.giveWorker(unit.takeWorker());
-                }
-            }
+        // See note in storage.js tick()
+        const inputUnits = this.getInputs(map).filter(u => (
+            (u instanceof Path) &&
+            u.workerAmount > 0
+        ));
+        if ((this.workerAmount + inputUnits.length) < this.workerCapacity) {
+            inputUnits.forEach(u => {
+                this.giveWorker(u.takeWorker());
+            });
         }
+        // if (this.workerAmount < this.workerCapacity) {
+        //     const inputUnits = this.getInputs(map);
+        //     for (let unit of inputUnits) {
+        //         if (unit.workerAmount > 0 && this.workerAmount < this.workerCapacity && (unit instanceof Path)) {
+        //             this.giveWorker(unit.takeWorker());
+        //         }
+        //     }
+        // }
     }
 
     update(map) {
