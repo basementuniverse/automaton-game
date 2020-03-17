@@ -169,6 +169,8 @@ class Consumer extends Unit {
             // If we're happy, produce a worker
             if (this.state >= 2 && this.state <= 5) {
                 this.giveWorker(new Worker(this.game, this.currentFood.level));
+            } else if (this.state === 1) {  // also produce workers when neutral, but only level 0
+                this.giveWorker(new Worker(this.game, 0));
             }
         }
         if (this.progress >= this.feedRate) {
