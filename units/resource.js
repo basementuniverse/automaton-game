@@ -29,7 +29,7 @@ class Resource extends Unit {
         this.debugLayer.opacity = 0;
     }
 
-    exclusivity = u => (u instanceof Miner);
+    exclusivity = u => (u instanceof Extractor);
 
     tick(map) {
         if (!this.hasResource && !this.growing) {

@@ -98,12 +98,12 @@ class Toolbar {
             }
         },
         {
-            icon: config.icons.miner,
-            label: 'Miner',
-            tool: 'miner',
+            icon: config.icons.extractor,
+            label: 'Extractor',
+            tool: 'extractor',
             shortcut: 'Digit2',
             click: game => {
-                this.tool = 'miner';
+                this.tool = 'extractor';
             }
         },
         {

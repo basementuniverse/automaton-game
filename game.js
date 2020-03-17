@@ -132,7 +132,7 @@ class Game {
                     }
                     break;
                 case 'resource': unit = new Resource(this, this.input.tilePosition); break;
-                case 'miner': unit = new Miner(this, this.input.tilePosition); break;
+                case 'extractor': unit = new Extractor(this, this.input.tilePosition); break;
                 case 'storage': unit = new Storage(this, this.input.tilePosition); break;
                 case 'factory': unit = new Factory(this, this.input.tilePosition); break;
                 case 'refiner': unit = new Refiner(this, this.input.tilePosition); break;

@@ -1,4 +1,4 @@
-class Miner extends Unit {
+class Extractor extends Unit {
     running = false;
     layer = null;
 
@@ -12,7 +12,7 @@ class Miner extends Unit {
         const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = 'white';
         layer.font = 'automaton';
-        layer.text = config.icons.miner;
+        layer.text = config.icons.extractor;
         layer.centered = true;
         this.layer = layer;
     }
@@ -46,6 +46,6 @@ class Miner extends Unit {
     }
 
     static deserialize(game, data) {
-        return new Miner(game, data.position);
+        return new Extractor(game, data.position);
     }
 }

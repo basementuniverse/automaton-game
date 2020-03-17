@@ -145,7 +145,7 @@ class Unit {
         let unit = null;
         switch (data._type) {
             case 'Resource': unit = Resource.deserialize(game, data); break;
-            case 'Miner': unit = Miner.deserialize(game, data); break;
+            case 'Extractor': unit = Extractor.deserialize(game, data); break;
             case 'Pipe': unit = Pipe.deserialize(game, data); break;
             case 'Storage': unit = Storage.deserialize(game, data); break;
             case 'Factory': unit = Factory.deserialize(game, data); break;

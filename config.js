@@ -16,7 +16,7 @@ const config = {
         sad2: 'l',
         sad3: 'e',
         sad4: 'm',
-        miner: 'f',
+        extractor: 'f',
         train: 'j',
         load: 'o',
         save: 'n',

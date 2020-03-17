@@ -43,7 +43,7 @@ There are 3 types of resource in this game, and they all work slightly different
 
 3. Power - each tile has a colour to signify its power level (float r/g/b)
 
-Products are mined from resources. They travel through pipes, and can be stored in storage. Pass products through chains of factories and refiners to merge/filter their colour and increase their level.
+Products are extracted from resources. They travel through pipes, and can be stored in storage. Pass products through chains of factories and refiners to merge/filter their colour and increase their level.
 
 Products can be fed into power stations and consumers.
 
@@ -79,7 +79,7 @@ Power:
 
 * resource - produce a level-0 product (either red, green or blue) every 1s.
 
-* miner - mine a resource every 1s.
+* extractor - extract a product from a resource every 1s.
 
 * pipe - transport 1 product at a time.
 
