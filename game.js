@@ -68,6 +68,11 @@ class Game {
         this.loop = null;
     }
 
+    pause(toggle) {
+        this.paused = toggle !== undefined ? !!toggle : !this.paused;
+        this.units.forEach(u => u.activeTile[this.paused ? 'pauseAnimations' : 'runAnimations']());
+    }
+
     clear() {
         this.units.forEach(u => u.dispose());
         this.unitMap.clear();

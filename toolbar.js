@@ -85,7 +85,7 @@ class Toolbar {
             label: 'Play',
             shortcut: 'Space',
             click: game => {
-                game.paused = !game.paused;
+                game.pause();
             }
         },
         {
