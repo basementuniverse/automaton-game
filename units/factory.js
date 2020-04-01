@@ -1,5 +1,5 @@
 class Factory extends Unit {
-    productionRate = 60;
+    productionRate = 0;
     progress = 0;
     product = null;
     currentWorker = null;
@@ -11,7 +11,8 @@ class Factory extends Unit {
 
         this.inputs = ['t', 'b', 'l', 'r'];
         this.outputs = ['t', 'b', 'l', 'r'];
-        this.tickRate = 8;
+        this.productionRate = utility.ticks(config.times.productManufacturing);
+        this.tickRate = utility.ticks(config.times.itemThroughStorage);
         this.productCapacity = 2;
         this.workerCapacity = 1;
 

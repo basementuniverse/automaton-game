@@ -15,7 +15,7 @@ class Scope extends Unit {
         this.outputs = ['t', 'b', 'l', 'r'];
         this.productCapacity = 5;
         this.workerCapacity = 5;
-        this.tickRate = 8;
+        this.tickRate = utility.ticks(config.times.itemThroughPipe);
         this.type = type;
         this.productHistory = productHistory || [];
         this.workerHistory = workerHistory || [];

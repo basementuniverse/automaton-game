@@ -6,7 +6,7 @@ class Refiner extends Unit {
         [0, 0, 1]
     ];
     filterLabels = 'RGB';
-    refiningRate = 120;
+    refiningRate = 0;
     progress = 0;
     product = null;
     filterBadge = null;
@@ -19,7 +19,8 @@ class Refiner extends Unit {
 
         this.inputs = ['t', 'b', 'l', 'r'];
         this.outputs = ['t', 'b', 'l', 'r'];
-        this.tickRate = 8;
+        this.tickRate = utility.ticks(config.times.itemThroughStorage);
+        this.refiningRate = utility.ticks(config.times.productRefinement);
         this.productCapacity = 1;
         this.workerCapacity = 1;
         this.filter = filter;

@@ -22,7 +22,7 @@ class Pipe extends Unit {
         this.inputs = [input];
         this.outputs = [output];
         this.productCapacity = 1;
-        this.tickRate = 8;
+        this.tickRate = utility.ticks(config.times.itemThroughPipe);
 
         const layer = this.activeTile.addLayer();
         layer.foreground = '#bbb';
@@ -60,7 +60,7 @@ class Pipe extends Unit {
             let colour = [1, 1, 1];
             const minOpacity = 0.1;
             const maxLevel = 4;
-            const animationTime = 0.3;
+            const animationTime = config.times.itemThroughPipe;
             if (this.productAmount > 0) {
                 colour = this.productInventory[0].colour;
                 opacity = (Math.min(this.productInventory[0].level, maxLevel) * (1 - minOpacity) / maxLevel) + minOpacity;

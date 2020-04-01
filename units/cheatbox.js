@@ -19,7 +19,7 @@ class CheatBox extends Unit {
         this.colour = colour;
         this.productCapacity = 1;
         this.workerCapacity = 1;
-        this.tickRate = 4;
+        this.tickRate = utility.ticks(config.times.itemThroughPipe);
 
         const layer = this.activeTile.addLayer(null, -1);
         layer.centered = true;

@@ -2,7 +2,7 @@ class Resource extends Unit {
     hasResource = false;
     layer = null;
     growing = false;
-    growTime = 1;
+    growTime = 0;
     colour = null;
     colours = [
         [1, 0, 0],
@@ -15,6 +15,7 @@ class Resource extends Unit {
 
         this.colour = colour || this.colours[Math.randomIntBetween(0, this.colours.length - 1)];
         this.hasResource = hasResource;
+        this.growTime = config.times.resourceGrowTime;
 
         const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = utility.colourString(this.colour, this.hasResource ? 1 : 0.3);
@@ -23,7 +24,7 @@ class Resource extends Unit {
         layer.text = String.fromCharCode(8226);
         this.layer = layer;
         
-        this.tickRate = 30;
+        this.tickRate = utility.ticks(config.times.resourceGrowTime);
 
         // Hide amount readout
         this.debugLayer.opacity = 0;
@@ -46,7 +47,7 @@ class Resource extends Unit {
             return null;
         }
         this.hasResource = false;
-        this.layer.animateForeground(utility.colourString(this.colour, 0.3), { time: 0.25 });
+        this.layer.animateForeground(utility.colourString(this.colour, 0.3), { time: this.growTime / 5 });
         return new Product(this.game, 0, this.colour);
     }
 

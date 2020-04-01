@@ -18,7 +18,7 @@ class City extends Unit {
         this.outputs = ['t', 'b', 'l', 'r'];
         this.type = type;
         this.workerCapacity = this.capacities[this.types[this.type]];
-        this.tickRate = 8;
+        this.tickRate = utility.ticks(config.times.itemThroughStorage);
 
         const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = 'white';

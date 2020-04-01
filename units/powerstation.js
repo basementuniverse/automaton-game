@@ -1,6 +1,6 @@
 class PowerStation extends Unit {
     running = false;
-    powerRate = 120;
+    powerRate = 0;
     progress = 0;
     currentProduct = null;
     currentWorker = null;
@@ -14,7 +14,8 @@ class PowerStation extends Unit {
         super(game, position);
 
         this.inputs = ['t', 'b', 'l', 'r'];
-        this.tickRate = 8;
+        this.tickRate = utility.ticks(config.times.itemThroughStorage);
+        this.powerRate = utility.ticks(config.times.powerStationFuelConsumption);
         this.productCapacity = 1;
         this.workerCapacity = 1;
 
@@ -129,7 +130,7 @@ class PowerStation extends Unit {
         const oldRunning = this.running;
         this.running = this.checkRunning();
         if (this.running) {
-            const heartbeat = 0;//Math.max(0, utility.triangleWave(2, 1.5, this.ticks / config.tickRate) - 1);
+            const heartbeat = 0;//Math.max(0, utility.triangleWave(2, 1.5, this.ticks / config.updateRate) - 1);
             const colour = this.colour, amount = this.amount;
             this.game.powerMap.set(
                 this.position.x, this.position.y,
@@ -142,9 +143,12 @@ class PowerStation extends Unit {
         }
         if (oldRunning !== this.running) {
             if (this.running) {
-                this.layer.animateRotation(Math.PI * 2, { direction: 'cw', time: 1, repeat: true });
+                this.layer.animateRotation(Math.PI * 2, {
+                    direction: 'cw',
+                    time: utility.time(this.powerRate),
+                    repeat: true
+                });
             } else {
-                this.layer.rotation = 0;
                 this.layer.animations = [];
             }
         }

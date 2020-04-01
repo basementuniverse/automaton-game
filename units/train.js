@@ -7,10 +7,7 @@ class Train extends Unit {
         'slow',
         'fast'
     ];
-    speeds = {
-        slow: 64,
-        fast: 15,
-    };
+    speeds = {};
     layer = null;
     layer2 = null;
     offsets = {
@@ -37,7 +34,11 @@ class Train extends Unit {
         this.outputs = ['t', 'b', 'l', 'r'];
         this.productCapacity = 16;
         this.workerCapacity = 16;
-        this.tickRate = 8;
+        this.tickRate = utility.ticks(config.times.itemThroughStorage);
+        this.speeds = {
+            slow: config.times.slowTrain,
+            fast: config.times.fastTrain
+        };
         this.moveRate = this.speeds[this.types[this.type]];
 
         const layer = this.activeTile.addLayer(null, -1);
@@ -90,7 +91,7 @@ class Train extends Unit {
         this.activeTile.offset = vec();
         this.moving = true;
         this.targetPosition = p;
-        this.activeTile.animateOffset(offset.x, offset.y, { time: this.moveRate / config.tickRate }).then(() => {
+        this.activeTile.animateOffset(offset.x, offset.y, { time: this.moveRate }).then(() => {
             this.position = p;
             this.activeTile.position = p;
             this.activeTile.offset = vec();
@@ -116,7 +117,7 @@ class Train extends Unit {
             }
         }
         if (this.targetPosition) {
-            this.layer.scale = this.targetPosition.x < this.position.x ? vec(-1, 1) : vec(1);
+            this.layer.scale = (this.targetPosition.x < this.position.x || this.targetPosition.y < this.position.y) ? vec(-1, 1) : vec(1);
         }
         super.update(map);
         this.debugLayer.text = `${this.productAmount} : ${this.workerAmount}`;

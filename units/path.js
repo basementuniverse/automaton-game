@@ -22,7 +22,7 @@ class Path extends Unit {
         this.inputs = [input];
         this.outputs = [output];
         this.workerCapacity = 1;
-        this.tickRate = 8;
+        this.tickRate = utility.ticks(config.times.itemThroughPipe);
 
         const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = '#bbb';
@@ -55,7 +55,7 @@ class Path extends Unit {
             let opacity = 0;
             const minOpacity = 0.1;
             const maxLevel = 3;
-            const animationTime = 0.3;
+            const animationTime = config.times.itemThroughPipe;
             if (this.workerAmount > 0) {
                 opacity = (Math.min(this.workerInventory[0].level, maxLevel) * (1 - minOpacity) / maxLevel) + minOpacity;
             }

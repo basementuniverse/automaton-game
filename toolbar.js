@@ -266,7 +266,7 @@ class Toolbar {
     draw(context, width, height) {
         context.save();
         context.translate(0, height - this.toolbarHeight);
-        context.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        context.fillStyle = 'rgba(100, 150, 255, 0.1)';
         context.fillRect(0, 0, width, this.toolbarHeight);
         this.buttons.forEach((b, i) => {
             context.textAlign = 'center';

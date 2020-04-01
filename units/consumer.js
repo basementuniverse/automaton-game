@@ -1,6 +1,6 @@
 class Consumer extends Unit {
-    feedRate = 90;
-    unpoweredFeedRate = 300;
+    feedRate = 0;
+    unpoweredFeedRate = 0;
     progress = 0;
     currentFood = null;
     requirement = 0;
@@ -35,11 +35,14 @@ class Consumer extends Unit {
     constructor(game, position, requirement = 0, state = 0, lockedRequirements = null) {
         super(game, position);
 
+        this.feedRate = utility.ticks(config.times.consumerFeedRate);
+        this.unpoweredFeedRate = utility.ticks(config.times.consumerFeedRateUnpowered);
+
         this.inputs = ['t', 'b', 'l', 'r'];
         this.outputs = ['t', 'b', 'l', 'r'];
-        this.tickRate = 8;
+        this.tickRate = utility.ticks(config.times.itemThroughStorage);
         this.productCapacity = 1;
-        this.workerCapacity = 8;
+        this.workerCapacity = 1;
         this.requirement = requirement;
         this.state = state;
         this.lockedRequirements = lockedRequirements || [null, null, null];

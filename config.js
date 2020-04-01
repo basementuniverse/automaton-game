@@ -1,8 +1,8 @@
 const config = {
     debug: true,
-    tickRate: 30,
+    updateRate: 30, // updates per second
     unitScale: 1.5,
-    icons: {
+    icons: {        // automaton font
         storage: 'a',
         star: 'b',
         neutral: 'i',
@@ -32,5 +32,19 @@ const config = {
         power1: '1',
         power2: '2',
         worker: '3'
+    },
+    times: {    // measured in seconds
+        resourceGrowTime: 1,
+        resourceExtraction: 1,
+        productManufacturing: 2,
+        productRefinement: 3,
+        consumerFeedRate: 3,
+        consumerFeedRateUnpowered: 12,
+        powerStationFuelConsumption: 4,
+        itemThroughPipe: 0.2,
+        itemThroughStorage: 0.2,
+        slowTrain: 2,
+        fastTrain: 0.5,
+        switchRotateTime: 1
     }
 };

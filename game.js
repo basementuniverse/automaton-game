@@ -59,7 +59,7 @@ class Game {
 
     run() {
         if (this.loop === null) {
-            this.loop = setInterval(this.update.bind(this), 1000 / config.tickRate);
+            this.loop = setInterval(this.update.bind(this), 1000 / config.updateRate);
         }
     }
 

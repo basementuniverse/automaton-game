@@ -25,7 +25,7 @@ class Switch extends Unit {
         this.outputs = [];
         this.productCapacity = 1;
         this.workerCapacity = 1;
-        this.tickRate = 30;
+        this.tickRate = utility.ticks(config.times.switchRotateTime);
         this.mode = mode;
         this.rotation = rotation;
 
@@ -66,7 +66,14 @@ class Switch extends Unit {
             this.layer3.opacity = 1;
         }
         this.outputs = [this.rotations[this.rotation]];
-        this.layer2.rotation = this.directions[this.rotations[this.rotation]];
+        this.layer2.animateRotation(
+            this.directions[this.rotations[this.rotation]],
+            {
+                relative: false,
+                time: config.times.switchRotateTime / 4
+            }
+        );
+        // this.layer2.rotation = this.directions[this.rotations[this.rotation]];
     }
 
     tapped() {

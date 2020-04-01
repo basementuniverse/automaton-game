@@ -7,7 +7,7 @@ class Extractor extends Unit {
 
         this.outputs = ['t', 'b', 'l', 'r'];
         this.productCapacity = 8;
-        this.tickRate = 30;
+        this.tickRate = utility.ticks(config.times.resourceExtraction);
 
         const layer = this.activeTile.addLayer(null, -1);
         layer.foreground = 'white';
@@ -28,9 +28,12 @@ class Extractor extends Unit {
         this.running = this.checkRunning(map);
         if (oldRunning !== this.running) {
             if (this.running) {
-                this.layer.animateRotation(Math.PI * 2, { direction: 'cw', time: 1, repeat: true });
+                this.layer.animateRotation(Math.PI * 2, {
+                    direction: 'cw',
+                    time: utility.time(this.tickRate) * this.productCapacity,
+                    repeat: true
+                });
             } else {
-                this.layer.rotation = 0;
                 this.layer.animations = [];
             }
         }
