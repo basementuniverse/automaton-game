@@ -1,10 +1,10 @@
 class Factory extends Unit {
-    baseProductionRate = 60;
-    minProductionRate = 15;
+    productionRate = 60;
     progress = 0;
     product = null;
     currentWorker = null;
-    layer2 = null;
+    workerBadge = null;
+    powerBadge = null;
 
     constructor(game, position) {
         super(game, position);
@@ -28,8 +28,18 @@ class Factory extends Unit {
         layer2.scale = vec(0.3);
         layer2.offset = vec(-0.4, 0.35);
         layer2.outline = '0.3 white';
-        this.layer2 = layer2;
-        this.updateBadge();
+        this.workerBadge = layer2;
+
+        const layer3 = this.activeTile.addLayer();
+        layer3.centered = true;
+        layer3.font = 'automaton';
+        layer3.text = config.icons.power2;
+        layer3.scale = vec(0.3);
+        layer3.offset = vec(-0.15, 0.35);
+        layer3.outline = '0.3 white';
+        this.powerBadge = layer3;
+        
+        this.updateBadges();
 
         // Hide amount readout
         this.debugLayer.opacity = 0;
@@ -45,23 +55,30 @@ class Factory extends Unit {
         }
     }
 
-    updateBadge() {
-        if (this.currentWorker === null) {
-            this.layer2.foreground = '#333';
-        } else {
-            this.layer2.foreground = '#aaa';
-        }
+    updateBadges() {
+        this.workerBadge.foreground = this.currentWorker === null ? '#333' : '#aaa';
+        this.powerBadge.foreground = this.powered ? '#aaa' : '#333';
     }
 
-    get productionRate() {
+    get powered() {
         if (this.productAmount < 2) {
-            return this.baseProductionRate;
+            return false;
         }
-        const power = this.game.powerMap.get(this.position.x, this.position.y);
+        const power = this.game.powerMap.getPowerState(this.position.x, this.position.y);
         const a = this.productInventory[0], b = this.productInventory[1];
         const c = { r: a.colour[0] & b.colour[0], g: a.colour[1] & b.colour[1], b: a.colour[2] & b.colour[2] };
-        return Math.max(this.minProductionRate, this.baseProductionRate - utility.dotColour(c, power));
+        return utility.dotColour(c, power) > 0;
     }
+
+    // get productionRate() {
+    //     if (this.productAmount < 2) {
+    //         return this.baseProductionRate;
+    //     }
+    //     const power = this.game.powerMap.get(this.position.x, this.position.y);
+    //     const a = this.productInventory[0], b = this.productInventory[1];
+    //     const c = { r: a.colour[0] & b.colour[0], g: a.colour[1] & b.colour[1], b: a.colour[2] & b.colour[2] };
+    //     return Math.max(this.minProductionRate, this.baseProductionRate - utility.dotColour(c, power));
+    // }
 
     tick(map) {
         const inputUnits = this.getInputs(map);
@@ -80,7 +97,7 @@ class Factory extends Unit {
         if (this.currentWorker === null && this.workerAmount >= 1) {
             this.currentWorker = this.workerInventory.shift();
         }
-        if (this.product === null && this.productAmount >= 2 && this.currentWorker !== null) {
+        if (this.product === null && this.productAmount >= 2 && this.currentWorker !== null && this.powered) {
             this.progress++;
         }
         if (this.progress >= this.productionRate) {
@@ -94,7 +111,7 @@ class Factory extends Unit {
                 this.currentWorker = null;
             }
         }
-        this.updateBadge();
+        this.updateBadges();
     }
 
     takeProduct() {

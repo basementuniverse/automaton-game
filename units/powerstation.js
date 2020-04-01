@@ -27,11 +27,14 @@ class PowerStation extends Unit {
 
         const layer2 = this.activeTile.addLayer();
         layer2.centered = true;
-        layer2.font = 'automaton';
-        layer2.text = config.icons.power2;
-        layer2.scale = vec(0.3);
-        layer2.offset = vec(0.4);
-        layer2.outline = '0.3 white';
+        // layer2.font = 'automaton';
+        // layer2.text = config.icons.power2;
+        layer2.text = String.fromCharCode(8226);
+        // layer2.scale = vec(0.3);
+        // layer2.offset = vec(0.4);
+        layer2.offset = vec(-0.1, 0.4);
+        // layer2.outline = '0.3 white';
+        layer2.outline = '0.1 white';
         this.layer2 = layer2;
 
         const layer3 = this.activeTile.addLayer();
@@ -42,13 +45,14 @@ class PowerStation extends Unit {
         layer3.offset = vec(-0.4, 0.35);
         layer3.outline = '0.3 white';
         this.layer3 = layer3;
-        this.setBadges();
+
+        this.updateBadges();
 
         // Hide amount readout
         this.debugLayer.opacity = 0;
     }
 
-    setBadges() {
+    updateBadges() {
         if (this.currentProduct === null) {
             this.layer2.foreground = '#333';
         } else {
@@ -144,7 +148,7 @@ class PowerStation extends Unit {
                 this.layer.animations = [];
             }
         }
-        this.setBadges();
+        this.updateBadges();
     }
 
     serialize() {

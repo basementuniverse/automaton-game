@@ -1,6 +1,6 @@
 class Consumer extends Unit {
-    baseFeedRate = 90;
-    minFeedRate = 30;
+    feedRate = 90;
+    unpoweredFeedRate = 300;
     progress = 0;
     currentFood = null;
     requirement = 0;
@@ -29,7 +29,8 @@ class Consumer extends Unit {
         'full'
     ];
     layer = null;
-    layer2 = null;
+    requirementBadge = null;
+    powerBadge = null;
 
     constructor(game, position, requirement = 0, state = 0, lockedRequirements = null) {
         super(game, position);
@@ -56,8 +57,18 @@ class Consumer extends Unit {
         layer2.text = String.fromCharCode(8226);
         layer2.offset = vec(0.4);
         layer2.outline = '0.1 white';
-        this.layer2 = layer2;
-        this.setRequirementBadge();
+        this.requirementBadge = layer2;
+
+        const layer3 = this.activeTile.addLayer();
+        layer3.centered = true;
+        layer3.font = 'automaton';
+        layer3.text = config.icons.power2;
+        layer3.scale = vec(0.3);
+        layer3.offset = vec(-0.4, 0.35);
+        layer3.outline = '0.3 white';
+        this.powerBadge = layer3;
+        
+        this.updateBadges();
 
         // Hide amount readout
         this.debugLayer.opacity = 0;
@@ -68,7 +79,7 @@ class Consumer extends Unit {
         if (this.requirement >= this.requirements.length) {
             this.requirement = 0;
         }
-        this.setRequirementBadge();
+        this.updateBadges();
     }
 
     getActualRequirements() {
@@ -76,13 +87,14 @@ class Consumer extends Unit {
         return this.lockedRequirements.map((c, i) => c === null ? r[i] : c);
     }
 
-    setRequirementBadge() {
+    updateBadges() {
         const c = this.getActualRequirements();
         if (c[0] === 0 && c[1] === 0 && c[2] === 0) {
-            this.layer2.foreground = '#333';
+            this.requirementBadge.foreground = '#333';
         } else {
-            this.layer2.foreground = utility.colourString(this.getActualRequirements());
+            this.requirementBadge.foreground = utility.colourString(this.getActualRequirements());
         }
+        this.powerBadge.foreground = this.powered ? '#aaa' : '#333';
     }
 
     checkRequirements() {
@@ -124,7 +136,7 @@ class Consumer extends Unit {
                     this.lockedRequirements[i] = 0;
                 }
             }
-            this.setRequirementBadge();
+            this.updateBadges();
         }
         this.layer.text = config.icons[this.states[this.state]];
     }
@@ -149,15 +161,25 @@ class Consumer extends Unit {
         return null;
     }
 
-    get feedRate() {
-        if (this.currentFood === null) {
-            return this.baseFeedRate;
+    get powered() {
+        if (this.productAmount < 1) {
+            return false;
         }
-        const power = this.game.powerMap.get(this.position.x, this.position.y);
-        const a = this.currentFood;
+        const power = this.game.powerMap.getPowerState(this.position.x, this.position.y);
+        const a = this.productInventory[0];
         const c = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
-        return Math.max(this.minFeedRate, this.baseFeedRate - utility.dotColour(c, power));
+        return utility.dotColour(c, power) > 0;
     }
+
+    // get feedRate() {
+    //     if (this.currentFood === null) {
+    //         return this.baseFeedRate;
+    //     }
+    //     const power = this.game.powerMap.get(this.position.x, this.position.y);
+    //     const a = this.currentFood;
+    //     const c = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
+    //     return Math.max(this.minFeedRate, this.baseFeedRate - utility.dotColour(c, power));
+    // }
 
     update(map) {
         super.update(map);
@@ -173,7 +195,8 @@ class Consumer extends Unit {
                 this.giveWorker(new Worker(this.game, 0));
             }
         }
-        if (this.progress >= this.feedRate) {
+        const f = this.powered ? this.feedRate : this.unpoweredFeedRate;
+        if (this.progress >= f) {
             this.progress = 0;
             this.currentFood = null;
         }

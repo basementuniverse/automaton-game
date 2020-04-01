@@ -9,12 +9,13 @@ class PowerMap {
     layer = null;
     cornerCoefficient = 0.5;
     unitCoefficient = 0.2;
-    attenuationAmount = 2;
-    colour = c => Math.clamp(Math.floor(c * 16), 0, 255);
+    attenuationAmount = 3.8;
+    colour = c => c > 0 ? 100 : 0;//Math.clamp(Math.floor(c * 16), 0, 255);
 
     constructor(game) {
         this.game = game;
         this.layer = this.game.tily.activeBuffer.addLayer();
+        this.layer.opacity = 0.7;
     }
 
     neighbours(x, y) {
@@ -47,6 +48,15 @@ class PowerMap {
         this.map.r[i] = r;
         this.map.g[i] = g;
         this.map.b[i] = b;
+    }
+
+    getPowerState(x, y) {
+        const p = this.get(x, y);
+        return {
+            r: +(p.r > 0),
+            g: +(p.g > 0),
+            b: +(p.b > 0)
+        };
     }
 
     update() {
@@ -108,8 +118,8 @@ class PowerMap {
                 map.g[i] = g;
                 map.b[i] = b;
                 this.layer.setTile(
-                    x, y, ' ', null,
-                    `rgb(${this.colour(r)}, ${this.colour(g)}, ${this.colour(b)})`
+                    x, y, String.fromCharCode(11034),
+                    `rgb(${this.colour(r)}, ${this.colour(g)}, ${this.colour(b)})`, null
                 );
             }
         }

@@ -6,12 +6,12 @@ class Refiner extends Unit {
         [0, 0, 1]
     ];
     filterLabels = 'RGB';
-    baseRefiningRate = 120;
-    minRefiningRate = 30;
+    refiningRate = 120;
     progress = 0;
     product = null;
-    layer2 = null;
-    layer3 = null;
+    filterBadge = null;
+    workerBadge = null;
+    powerBadge = null;
     currentWorker = null;
 
     constructor(game, position, filter = 0) {
@@ -35,7 +35,7 @@ class Refiner extends Unit {
         layer2.text = String.fromCharCode(8226);
         layer2.offset = vec(0.4);
         layer2.outline = '0.1 white';
-        this.layer2 = layer2;
+        this.filterBadge = layer2;
 
         const layer3 = this.activeTile.addLayer();
         layer3.centered = true;
@@ -44,21 +44,28 @@ class Refiner extends Unit {
         layer3.scale = vec(0.3);
         layer3.offset = vec(-0.4, 0.35);
         layer3.outline = '0.3 white';
-        this.layer3 = layer3;
-        this.setBadges();
+        this.workerBadge = layer3;
+
+        const layer4 = this.activeTile.addLayer();
+        layer4.centered = true;
+        layer4.font = 'automaton';
+        layer4.text = config.icons.power2;
+        layer4.scale = vec(0.3);
+        layer4.offset = vec(-0.15, 0.35);
+        layer4.outline = '0.3 white';
+        this.powerBadge = layer4;
+
+        this.updateBadges();
 
         // Hide amount readout
         this.debugLayer.opacity = 0;
     }
 
-    setBadges() {
+    updateBadges() {
         const r = this.filters[this.filter];
-        this.layer2.foreground = utility.colourString(r);
-        if (this.currentWorker === null) {
-            this.layer3.foreground = '#333';
-        } else {
-            this.layer3.foreground = '#aaa';
-        }
+        this.filterBadge.foreground = utility.colourString(r);
+        this.workerBadge.foreground = this.currentWorker === null ? '#333' : '#aaa';
+        this.powerBadge.foreground = this.powered ? '#aaa' : '#333';
     }
 
     dispose() {
@@ -78,15 +85,25 @@ class Refiner extends Unit {
         }
     }
 
-    get refiningRate() {
+    get powered() {
         if (this.productAmount < 1) {
-            return this.baseRefiningRate;
+            return false;
         }
-        const power = this.game.powerMap.get(this.position.x, this.position.y);
+        const power = this.game.powerMap.getPowerState(this.position.x, this.position.y);
         const a = this.productInventory[0];
         const c = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
-        return Math.max(this.minRefiningRate, this.baseRefiningRate - utility.dotColour(c, power));
+        return utility.dotColour(c, power) > 0;
     }
+
+    // get refiningRate() {
+    //     if (this.productAmount < 1) {
+    //         return this.baseRefiningRate;
+    //     }
+    //     const power = this.game.powerMap.get(this.position.x, this.position.y);
+    //     const a = this.productInventory[0];
+    //     const c = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
+    //     return Math.max(this.minRefiningRate, this.baseRefiningRate - utility.dotColour(c, power));
+    // }
 
     tick(map) {
         const inputUnits = this.getInputs(map);
@@ -105,7 +122,7 @@ class Refiner extends Unit {
         if (this.currentWorker === null && this.workerAmount >= 1) {
             this.currentWorker = this.workerInventory.shift();
         }
-        if (this.product === null && this.productAmount >= 2 && this.currentWorker !== null) {
+        if (this.product === null && this.productAmount >= 2 && this.currentWorker !== null && this.powered) {
             this.progress++;
         }
         if (this.progress >= this.refiningRate) {
@@ -117,7 +134,7 @@ class Refiner extends Unit {
                 this.currentWorker = null;
             }
         }
-        this.setBadges();
+        this.updateBadges();
     }
 
     takeProduct() {

@@ -1,6 +1,4 @@
-# Automaton
-
-AUT0M4T0N
+# `AUT0M4T0N`
 
 ## TODO
 
@@ -35,25 +33,33 @@ different terrain types have different restrictions. powermap spread doesn't cro
 
 ## Instructions
 
-There are 3 types of resource in this game, and they all work slightly differently:
+Resources produce products. Products have a level (integer, starts at 0) and a colour (3 bits: red, green and blue).
 
-1. Products - they have level (int) and colour (3 bits, r/g/b, so there are 3^2=8 colours in total)
+Extractors extract products from resources.
 
-2. Workers - they have level (int)
+Products travel through pipes and can be stored in storage units.
 
-3. Power - each tile has a colour to signify its power level (float r/g/b)
+Factories combine 2 products into 1. If the products have the same level, the resulting product will have that level +1. The product colour will be a combination of the inputs. Factories require workers and power to operate.
 
-Products are extracted from resources. They travel through pipes, and can be stored in storage. Pass products through chains of factories and refiners to merge/filter their colour and increase their level.
+Refiners increase the level of a product and filter out one of the colour channels. Refiners require workers and power to operate.
 
-Products can be fed into power stations and consumers.
+Consumers consume products and produce workers. Workers have a level (integer, starts at 0). The level of the worker depends on the level of product being consumed. Consumers have state: unhappy if being fed only a non-required colour channel, neutral if being fed some required colour channels, and happy if all colour channel requirements are met. The level of happiness or unhappiness depends on the product level; if the consumer reaches happy level 5 or unhappy level 5, a colour channel will be added or removed, respectively, from the consumer's requirements. Consumers will always output workers if given a product to consume, however the worker production rate drops significantly if the consumer is not powered.
 
-Consumers eat products and produce workers. Workers travel on paths, and can be stored in cities. Load a worker into a power station, factory or refiner, and the unit will start operating. Each time the unit ticks (eg. every time a factory produces something), the level of the worker will be decremented. When it goes below 0, the worker is disposed and a new one is required.
+Workers travel on paths and can be stored in cities.
 
-Power stations require products and workers, and they output a coloured field around them. This field spreads more easily on occupied tiles.
+Factories, refiners and power stations require workers in order to operate. As they operate (producing products, refining, etc..) the level of the worker is gradually reduced. When it goes below 0, the worker is disposed and a new worker is required.
 
-Factories, refiners and consumers will all work without power, but they will tick at their respective 'base tick rates' (ie. quite slowly). When on a powered tile however, we check the power colour against the current work being done (for factories this is a logical AND of the current input products colours, for refiners it is the colour of the product being refined, for consumers it is the colour of the product currently being consumed) and reduce the tick rate accordingly. For example, if your consumer is eating red products, they will tick faster on tiles with red power.
+Both products and workers can travel in trucks on roads. Trucks get their input/output from pipes and paths.
+
+Power stations product a field of powered tiles around them. The colour and size of this field depends on the colour and level of the product being used as fuel.
+
+For factories, refiners and consumers to be powered properly, the power colour on their tile must share at least 1 colour channel with the product currently being merged/refined/consumed.
+
+Some units can be clicked/tapped with the Select tool to perform a contextual action. Refiner filter colours can be changed, storage units can be switched between 16/32/64 capacity, etc...
 
 ## Units
+
+(probably out of date info... TODO update this!)
 
 Product:
 ```
