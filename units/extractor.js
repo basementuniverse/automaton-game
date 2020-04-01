@@ -24,19 +24,7 @@ class Extractor extends Unit {
     }
 
     update(map) {
-        const oldRunning = this.running;
         this.running = this.checkRunning(map);
-        if (oldRunning !== this.running) {
-            if (this.running) {
-                this.layer.animateRotation(Math.PI * 2, {
-                    direction: 'cw',
-                    time: utility.time(this.tickRate) * this.productCapacity,
-                    repeat: true
-                });
-            } else {
-                this.layer.animations = [];
-            }
-        }
         super.update(map);
     }
 
@@ -45,6 +33,10 @@ class Extractor extends Unit {
             for (let unit of map.getUnits(this.position).filter(u => (u instanceof Resource))) {
                 this.giveProduct(unit.takeProduct());
             }
+            this.layer.animateRotation((Math.PI * 2) / 5, {
+                time: utility.time(this.tickRate),
+                relative: true
+            });
         }
     }
 

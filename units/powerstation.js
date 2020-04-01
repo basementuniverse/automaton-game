@@ -23,7 +23,7 @@ class PowerStation extends Unit {
         layer.foreground = 'white';
         layer.centered = true;
         layer.font = 'automaton';
-        layer.text = config.icons.power1;
+        layer.text = config.icons.power2;//config.icons.power1;
         this.layer = layer;
 
         const layer2 = this.activeTile.addLayer();
@@ -127,7 +127,6 @@ class PowerStation extends Unit {
                 this.currentWorker = null;
             }
         }
-        const oldRunning = this.running;
         this.running = this.checkRunning();
         if (this.running) {
             const heartbeat = 0;//Math.max(0, utility.triangleWave(2, 1.5, this.ticks / config.updateRate) - 1);
@@ -140,17 +139,6 @@ class PowerStation extends Unit {
                 colour[2] * amount + heartbeat
             );
             this.progress++;
-        }
-        if (oldRunning !== this.running) {
-            if (this.running) {
-                this.layer.animateRotation(Math.PI * 2, {
-                    direction: 'cw',
-                    time: utility.time(this.powerRate),
-                    repeat: true
-                });
-            } else {
-                this.layer.animations = [];
-            }
         }
         this.updateBadges();
     }
