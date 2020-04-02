@@ -1,6 +1,4 @@
 class Consumer extends Unit {
-    feedRate = 0;
-    unpoweredFeedRate = 0;
     progress = 0;
     currentFood = null;
     requirement = 0;
@@ -34,9 +32,6 @@ class Consumer extends Unit {
 
     constructor(game, position, requirement = 0, state = 0, lockedRequirements = null) {
         super(game, position);
-
-        this.feedRate = utility.ticks(config.times.consumerFeedRate);
-        this.unpoweredFeedRate = utility.ticks(config.times.consumerFeedRateUnpowered);
 
         this.inputs = ['t', 'b', 'l', 'r'];
         this.outputs = ['t', 'b', 'l', 'r'];
@@ -97,7 +92,7 @@ class Consumer extends Unit {
         } else {
             this.requirementBadge.foreground = utility.colourString(this.getActualRequirements());
         }
-        this.powerBadge.foreground = this.powered ? '#aaa' : '#333';
+        this.powerBadge.foreground = ['#333', '#666', '#aaa'][this.powered];
     }
 
     checkRequirements() {
@@ -165,24 +160,27 @@ class Consumer extends Unit {
     }
 
     get powered() {
-        if (this.productAmount < 1) {
-            return false;
-        }
         const power = this.game.powerMap.getPowerState(this.position.x, this.position.y);
-        const a = this.productInventory[0];
-        const c = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
-        return utility.dotColour(c, power) > 0;
+        if (!power.r && !power.g && !power.b) {
+            return 0;
+        }
+        if (this.productAmount > 0) {
+            const a = this.productInventory[0];
+            const product = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
+            if (['r', 'g', 'b'].every(c => !product[c] || power[c])) {
+                return 2;
+            }
+        }
+        return 1;
     }
 
-    // get feedRate() {
-    //     if (this.currentFood === null) {
-    //         return this.baseFeedRate;
-    //     }
-    //     const power = this.game.powerMap.get(this.position.x, this.position.y);
-    //     const a = this.currentFood;
-    //     const c = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
-    //     return Math.max(this.minFeedRate, this.baseFeedRate - utility.dotColour(c, power));
-    // }
+    get feedRate() {
+        return utility.ticks([
+            config.times.consumerFeedRateUnpowered,
+            config.times.consumerFeedRate,
+            config.times.consumerFeedRateOptimal
+        ][this.powered]);
+    }
 
     update(map) {
         super.update(map);
@@ -198,8 +196,7 @@ class Consumer extends Unit {
                 this.giveWorker(new Worker(this.game, 0));
             }
         }
-        const f = this.powered ? this.feedRate : this.unpoweredFeedRate;
-        if (this.progress >= f) {
+        if (this.progress >= this.feedRate) {
             this.progress = 0;
             this.currentFood = null;
         }

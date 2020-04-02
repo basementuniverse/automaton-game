@@ -6,7 +6,6 @@ class Refiner extends Unit {
         [0, 0, 1]
     ];
     filterLabels = 'RGB';
-    refiningRate = 0;
     progress = 0;
     product = null;
     filterBadge = null;
@@ -20,7 +19,6 @@ class Refiner extends Unit {
         this.inputs = ['t', 'b', 'l', 'r'];
         this.outputs = ['t', 'b', 'l', 'r'];
         this.tickRate = utility.ticks(config.times.itemThroughStorage);
-        this.refiningRate = utility.ticks(config.times.productRefinement);
         this.productCapacity = 1;
         this.workerCapacity = 1;
         this.filter = filter;
@@ -66,7 +64,7 @@ class Refiner extends Unit {
         const r = this.filters[this.filter];
         this.filterBadge.foreground = utility.colourString(r);
         this.workerBadge.foreground = this.currentWorker === null ? '#333' : '#aaa';
-        this.powerBadge.foreground = this.powered ? '#aaa' : '#333';
+        this.powerBadge.foreground = ['#333', '#666', '#aaa'][this.powered];
     }
 
     dispose() {
@@ -87,24 +85,27 @@ class Refiner extends Unit {
     }
 
     get powered() {
-        if (this.productAmount < 1) {
-            return false;
-        }
         const power = this.game.powerMap.getPowerState(this.position.x, this.position.y);
-        const a = this.productInventory[0];
-        const c = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
-        return utility.dotColour(c, power) > 0;
+        if (!power.r && !power.g && !power.b) {
+            return 0;
+        }
+        if (this.productAmount > 0) {
+            const a = this.productInventory[0];
+            const product = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
+            if (['r', 'g', 'b'].every(c => !product[c] || power[c])) {
+                return 2;
+            }
+        }
+        return 1;
     }
 
-    // get refiningRate() {
-    //     if (this.productAmount < 1) {
-    //         return this.baseRefiningRate;
-    //     }
-    //     const power = this.game.powerMap.get(this.position.x, this.position.y);
-    //     const a = this.productInventory[0];
-    //     const c = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
-    //     return Math.max(this.minRefiningRate, this.baseRefiningRate - utility.dotColour(c, power));
-    // }
+    get refiningRate() {
+        return utility.ticks([
+            1000000,
+            config.times.productRefinement,
+            config.times.productRefinementOptimal
+        ][this.powered]);
+    }
 
     tick(map) {
         const inputUnits = this.getInputs(map);
@@ -123,7 +124,7 @@ class Refiner extends Unit {
         if (this.currentWorker === null && this.workerAmount >= 1) {
             this.currentWorker = this.workerInventory.shift();
         }
-        if (this.product === null && this.productAmount >= 2 && this.currentWorker !== null && this.powered) {
+        if (this.product === null && this.productAmount >= 2 && this.currentWorker !== null && this.powered > 0) {
             this.progress++;
         }
         if (this.progress >= this.refiningRate) {

@@ -1,5 +1,4 @@
 class Factory extends Unit {
-    productionRate = 0;
     progress = 0;
     product = null;
     currentWorker = null;
@@ -11,7 +10,6 @@ class Factory extends Unit {
 
         this.inputs = ['t', 'b', 'l', 'r'];
         this.outputs = ['t', 'b', 'l', 'r'];
-        this.productionRate = utility.ticks(config.times.productManufacturing);
         this.tickRate = utility.ticks(config.times.itemThroughStorage);
         this.productCapacity = 2;
         this.workerCapacity = 1;
@@ -58,28 +56,31 @@ class Factory extends Unit {
 
     updateBadges() {
         this.workerBadge.foreground = this.currentWorker === null ? '#333' : '#aaa';
-        this.powerBadge.foreground = this.powered ? '#aaa' : '#333';
+        this.powerBadge.foreground = ['#333', '#666', '#aaa'][this.powered];
     }
 
     get powered() {
-        if (this.productAmount < 2) {
-            return false;
-        }
         const power = this.game.powerMap.getPowerState(this.position.x, this.position.y);
-        const a = this.productInventory[0], b = this.productInventory[1];
-        const c = { r: a.colour[0] & b.colour[0], g: a.colour[1] & b.colour[1], b: a.colour[2] & b.colour[2] };
-        return utility.dotColour(c, power) > 0;
+        if (!power.r && !power.g && !power.b) {
+            return 0;
+        }
+        if (this.productAmount >= 2) {
+            const a = this.productInventory[0], b = this.productInventory[1];
+            const product = { r: a.colour[0] & b.colour[0], g: a.colour[1] & b.colour[1], b: a.colour[2] & b.colour[2] };
+            if (['r', 'g', 'b'].every(c => !product[c] || power[c])) {
+                return 2;
+            }
+        }
+        return 1;
     }
 
-    // get productionRate() {
-    //     if (this.productAmount < 2) {
-    //         return this.baseProductionRate;
-    //     }
-    //     const power = this.game.powerMap.get(this.position.x, this.position.y);
-    //     const a = this.productInventory[0], b = this.productInventory[1];
-    //     const c = { r: a.colour[0] & b.colour[0], g: a.colour[1] & b.colour[1], b: a.colour[2] & b.colour[2] };
-    //     return Math.max(this.minProductionRate, this.baseProductionRate - utility.dotColour(c, power));
-    // }
+    get productionRate() {
+        return utility.ticks([
+            1000000,
+            config.times.productManufacturing,
+            config.times.productManufacturingOptimal
+        ][this.powered]);
+    }
 
     tick(map) {
         const inputUnits = this.getInputs(map);
@@ -98,7 +99,7 @@ class Factory extends Unit {
         if (this.currentWorker === null && this.workerAmount >= 1) {
             this.currentWorker = this.workerInventory.shift();
         }
-        if (this.product === null && this.productAmount >= 2 && this.currentWorker !== null && this.powered) {
+        if (this.product === null && this.productAmount >= 2 && this.currentWorker !== null && this.powered > 0) {
             this.progress++;
         }
         if (this.progress >= this.productionRate) {
