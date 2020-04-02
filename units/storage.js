@@ -47,6 +47,18 @@ class Storage extends Unit {
                 this.giveProduct(u.takeProduct());
             });
         }
+
+        // Adjacent storage
+        const adjacentStorage = this.getInputs(map).filter(u => (
+            (u instanceof Storage) &&
+            u.productAmount > (this.productAmount === 0 ? 0 : this.productAmount + 1)
+        ));
+        if ((this.productAmount + adjacentStorage.length) < this.productCapacity) {
+            adjacentStorage.forEach(u => {
+                this.giveProduct(u.takeProduct());
+            });
+        }
+
         // if (this.productAmount < this.productCapacity) {
         //     const inputUnits = this.getInputs(map);
         //     for (let unit of inputUnits) {

@@ -5,9 +5,13 @@ class Resource extends Unit {
     growTime = 0;
     colour = null;
     colours = [
-        [1, 0, 0],
-        [0, 1, 0],
-        [0, 0, 1]
+        // [1, 0, 0],
+        // [0, 1, 0],
+        // [0, 0, 1],
+        // [1, 1, 0],
+        // [1, 0, 1],
+        // [0, 1, 1],
+        [1, 1, 1]
     ];
 
     constructor(game, position, colour = null, hasResource = false) {
