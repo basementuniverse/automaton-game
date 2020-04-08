@@ -5,8 +5,7 @@ class PowerStation extends Unit {
     currentProduct = null;
     currentWorker = null;
     layer = null;
-    layer2 = null;
-    layer3 = null;
+    workerBadge = null;
     amountCoefficient = 2;
     amountOffset = 4;
 
@@ -26,18 +25,6 @@ class PowerStation extends Unit {
         layer.text = config.icons.power2;//config.icons.power1;
         this.layer = layer;
 
-        const layer2 = this.activeTile.addLayer();
-        layer2.centered = true;
-        // layer2.font = 'automaton';
-        // layer2.text = config.icons.power2;
-        layer2.text = String.fromCharCode(8226);
-        // layer2.scale = vec(0.3);
-        // layer2.offset = vec(0.4);
-        layer2.offset = vec(-0.1, 0.4);
-        // layer2.outline = '0.3 white';
-        layer2.outline = '0.1 white';
-        this.layer2 = layer2;
-
         const layer3 = this.activeTile.addLayer();
         layer3.centered = true;
         layer3.font = 'automaton';
@@ -45,7 +32,7 @@ class PowerStation extends Unit {
         layer3.scale = vec(0.3);
         layer3.offset = vec(-0.4, 0.35);
         layer3.outline = '0.3 white';
-        this.layer3 = layer3;
+        this.workerBadge = layer3;
 
         this.updateBadges();
 
@@ -54,15 +41,10 @@ class PowerStation extends Unit {
     }
 
     updateBadges() {
-        if (this.currentProduct === null) {
-            this.layer2.foreground = '#333';
-        } else {
-            this.layer2.foreground = utility.colourString(this.currentProduct.colour);
-        }
         if (this.currentWorker === null) {
-            this.layer3.foreground = '#333';
+            this.workerBadge.foreground = '#333';
         } else {
-            this.layer3.foreground = '#aaa';
+            this.workerBadge.foreground = '#aaa';
         }
     }
 

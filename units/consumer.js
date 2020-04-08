@@ -164,10 +164,9 @@ class Consumer extends Unit {
         if (!power.r && !power.g && !power.b) {
             return 0;
         }
-        if (this.productAmount > 0) {
-            const a = this.productInventory[0];
-            const product = { r: a.colour[0], g: a.colour[1], b: a.colour[2] };
-            if (['r', 'g', 'b'].every(c => !product[c] || power[c])) {
+        if (this.currentFood !== null) {
+            const food = { r: this.currentFood.colour[0], g: this.currentFood.colour[1], b: this.currentFood.colour[2] };
+            if (['r', 'g', 'b'].every(c => !food[c] || power[c])) {
                 return 2;
             }
         }
