@@ -1,5 +1,7 @@
 # `AUT0M4T0N`
 
+https://basementuniverse.github.io/automaton-game/
+
 ## TODO
 
 * [x] factories
