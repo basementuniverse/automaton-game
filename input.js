@@ -19,7 +19,7 @@ class Input {
         cursorLayer.foreground = 'white';
         cursorLayer.text = String.fromCharCode(11034);
         cursorLayer.opacity = 0.3;
-        cursorLayer.centered = true;
+        // cursorLayer.centered = true;
 
         // Set up hammer input event handlers
         const hammer = new Hammer.Manager(game.canvas, { recognizers: [
