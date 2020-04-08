@@ -39,7 +39,7 @@ Extractors extract products from resources.
 
 Products travel through pipes and can be stored in storage units.
 
-Factories combine 2 products into 1. If the products have the same level, the resulting product will have that level +1. The product colour will be a combination of the inputs. Factories require workers and power to operate.
+Factories combine 2 products into 1. If the products have the same level, the resulting product will have that level +1. The product colour will be a combination of the inputs (eg. red + green = yellow). Factories require workers and power to operate.
 
 Refiners increase the level of a product and filter out one of the colour channels. Refiners require workers and power to operate.
 
@@ -51,11 +51,13 @@ Factories, refiners and power stations require workers in order to operate. As t
 
 Both products and workers can travel in trucks on roads. Trucks get their input/output from pipes and paths.
 
-Power stations product a field of powered tiles around them. The colour and size of this field depends on the colour and level of the product being used as fuel.
+Power stations product a field of powered tiles around them. The colour and size of this field depends on the colour and level of the product being used as fuel. Power spreads more easily on occupied tiles, and is blocked by terrain boundaries.
 
 For factories, refiners and consumers to be powered properly, the power colour on their tile must share at least 1 colour channel with the product currently being merged/refined/consumed.
 
 Some units can be clicked/tapped with the Select tool to perform a contextual action. Refiner filter colours can be changed, storage units can be switched between 16/32/64 capacity, etc...
+
+Some terrain types place restrictions on the type of units that can be placed in a tile.
 
 ## Units
 

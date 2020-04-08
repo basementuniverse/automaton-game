@@ -7,17 +7,13 @@ class Resource extends Unit {
     colours = [
         [1, 0, 0],
         [0, 1, 0],
-        [0, 0, 1],
-        [1, 1, 0],
-        [1, 0, 1],
-        [0, 1, 1],
-        [1, 1, 1]
+        [0, 0, 1]
     ];
 
     constructor(game, position, colour = null, hasResource = false) {
         super(game, position);
 
-        this.colour = colour || this.colours[Math.randomIntBetween(0, this.colours.length - 1)];
+        this.colour = colour === null ? this.colours[Math.randomIntBetween(0, this.colours.length - 1)] : colour;
         this.hasResource = hasResource;
         this.growTime = config.times.resourceGrowTime;
 

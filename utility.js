@@ -8,5 +8,16 @@ const utility = {
     },
     dotColour: (a, b) => a.r * b.r + a.g * b.g + a.b * b.b,
     ticks: t => Math.floor(t * config.updateRate),
-    time: t => t / config.updateRate
+    time: t => t / config.updateRate,
+    maxNeighbour(n, c) {
+        let m = -Infinity, j = -1;
+        for (let i = 0; i < n.length; i++) {
+            if (n[i][c] >= m) {
+                m = n[i][c];
+                j = i;
+            }
+        }
+        return n[j];
+    },
+    hash: (x, y) => `${x}_${y}`
 };

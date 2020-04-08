@@ -31,7 +31,8 @@ const config = {
         city: 'y',
         power1: '1',
         power2: '2',
-        worker: '3'
+        worker: '3',
+        map: '4'
     },
     times: {    // measured in seconds
         resourceGrowTime: 1,
@@ -49,5 +50,55 @@ const config = {
         slowTrain: 2,
         fastTrain: 0.5,
         switchRotateTime: 1
-    }
+    },
+    terrain: [
+        {   // default
+            seed: 43627,
+            scale: 1,
+            min: 0,
+            max: 1,
+            icon: String.fromCharCode(11034),
+            foreground: '#303030',
+            background: null,
+            resourceDensity: 0.02,
+            resourceColours: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            allowedUnits: null
+        },
+        {   // mountains
+            seed: 4281,
+            scale: 0.2,
+            min: 0.55,
+            max: 1,
+            icon: String.fromCharCode(9640),
+            foreground: '#353030',
+            background: null,
+            resourceDensity: 0.04,
+            resourceColours: [[1, 0, 0]],
+            allowedUnits: ['Resource', 'Extractor', 'Path', 'Pipe', 'Track', 'Train']
+        },
+        {   // farmland
+            seed: 784,
+            scale: 0.04,
+            min: 0.43,
+            max: 0.57,
+            icon: String.fromCharCode(9638),
+            foreground: '#303530',
+            background: null,
+            resourceDensity: 0.1,
+            resourceColours: [[0, 1, 0], [0, 0, 1]],
+            allowedUnits: null
+        },
+        {   // water
+            seed: 784,
+            scale: 0.04,
+            min: 0.48,
+            max: 0.52,
+            icon: String.fromCharCode(9636),
+            foreground: '#303035',
+            background: null,
+            resourceDensity: 0,
+            resourceColours: [],
+            allowedUnits: ['Path', 'Pipe', 'Track', 'Train']
+        }
+    ]
 };

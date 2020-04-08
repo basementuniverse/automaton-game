@@ -10,6 +10,13 @@ class Toolbar {
             }
         },
         {
+            icon: config.icons.map,
+            label: 'New map',
+            click: game => {
+                game.terrain.generate();
+            }
+        },
+        {
             icon: config.icons.save,
             label: 'Save to local storage',
             shortcut: 'KeyS',

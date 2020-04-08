@@ -13,6 +13,7 @@ class Game {
     width = 32;
     height = 32;
     toolbar = null;
+    terrain = null;
 
     constructor(canvas) {
         Debug.initialise();
@@ -29,7 +30,7 @@ class Game {
         // Set up game world
         this.buffer = new Tily.Buffer(this.width, this.height, {
             clampCamera: true,
-            initialScale: 24,
+            initialScale: 32,//24,
             minimumScale: 3,
             maximumScale: 200
         });
@@ -37,15 +38,9 @@ class Game {
 
         // Setup input
         this.input = new Input(this);
-        this.unitMap = new UnitMap();
+        this.unitMap = new UnitMap(this);
+        this.terrain = new Terrain(this);
         this.powerMap = new PowerMap(this);
-
-        // Fill background grid
-        const layer = this.buffer.addLayer();
-        layer.foreground = 'white';
-        layer.fill(String.fromCharCode(11034));
-        layer.centered = true;
-        layer.opacity = 0.1;        
     }
 
     addUnit(unit) {
@@ -55,6 +50,12 @@ class Game {
             return true;
         }
         return false;
+    }
+
+    removeUnits(p) {
+        for (let u of this.unitMap.getUnits(p)) {
+            u.dispose();
+        }
     }
 
     run() {
@@ -76,16 +77,21 @@ class Game {
     clear() {
         this.units.forEach(u => u.dispose());
         this.unitMap.clear();
+        this.terrain.clear();
     }
 
     save() {
-        return JSON.stringify(this.units.map(u => u.serialize()));
+        return JSON.stringify({
+            units: this.units.map(u => u.serialize()),
+            terrain: this.terrain.serialize()
+        });
     }
 
     load(json) {
         const data = JSON.parse(json);
         this.clear();
-        data.forEach(d => this.addUnit(Unit.deserialize(this, d)));
+        this.terrain.load(data.terrain);
+        data.units.forEach(d => this.addUnit(Unit.deserialize(this, d)));
     }
 
     update() {
@@ -131,11 +137,7 @@ class Game {
                         u.tapped();
                     }
                     break;
-                case 'delete':
-                    for (let u of this.unitMap.getUnits(this.input.tilePosition)) {
-                        u.dispose();
-                    }
-                    break;
+                case 'delete': this.removeUnits(this.input.tilePosition); break;
                 case 'resource': unit = new Resource(this, this.input.tilePosition); break;
                 case 'extractor': unit = new Extractor(this, this.input.tilePosition); break;
                 case 'storage': unit = new Storage(this, this.input.tilePosition); break;

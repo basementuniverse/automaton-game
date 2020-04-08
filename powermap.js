@@ -9,13 +9,14 @@ class PowerMap {
     layer = null;
     cornerCoefficient = 0.5;
     unitCoefficient = 0.2;
+    terrainCoefficient = 0.6;
     attenuationAmount = 3.8;
-    colour = c => c > 0 ? 100 : 0;//Math.clamp(Math.floor(c * 16), 0, 255);
+    colour = c => c > 0 ? 255 : 0;
 
     constructor(game) {
         this.game = game;
         this.layer = this.game.tily.activeBuffer.addLayer();
-        this.layer.opacity = 0.7;
+        this.layer.opacity = 0.5;
     }
 
     neighbours(x, y) {
@@ -32,9 +33,10 @@ class PowerMap {
     get(x, y) {
         const i = utility.index(x, y, this.game.width);
         if (x < 0 || x >= this.game.width || y < 0 || y >= this.game.height) {
-            return { state: '', r: 0, g: 0, b: 0 };
+            return { x, y, state: '', r: 0, g: 0, b: 0 };
         }
         return {
+            x, y,
             state: this.map.state[i] || '',
             r: this.map.r[i] || 0,
             g: this.map.g[i] || 0,
@@ -78,6 +80,7 @@ class PowerMap {
                 let s = '', r = 0, g = 0, b = 0;
                 const i = utility.index(x, y, this.game.width);
                 const t = this.get(x, y);
+                const terrain = this.game.terrain.get(x, y);
                 const neighbours = this.neighbours(x, y);
                 if (t.state == '' && neighbours.some(n => n.state == 'h')) {
                     s = 'h';
@@ -88,10 +91,22 @@ class PowerMap {
                 if (t.state == 't') {
                     s = '';
                 }
-                r = Math.max(0, ...neighbours.map(n => n.r));
-                g = Math.max(0, ...neighbours.map(n => n.g));
-                b = Math.max(0, ...neighbours.map(n => n.b));
+                const mr = utility.maxNeighbour(neighbours, 'r');
+                const mg = utility.maxNeighbour(neighbours, 'g');
+                const mb = utility.maxNeighbour(neighbours, 'b');
                 const u = this.game.unitMap.hasUnits(vec(x, y));
+                r = mr.r;
+                g = mg.g;
+                b = mb.b;
+                if (!u && this.game.terrain.get(mr.x, mr.y) !== terrain) {
+                    r *= this.terrainCoefficient;
+                }
+                if (!u && this.game.terrain.get(mg.x, mg.y) !== terrain) {
+                    g *= this.terrainCoefficient;
+                }
+                if (!u && this.game.terrain.get(mb.x, mb.y) !== terrain) {
+                    b *= this.terrainCoefficient;
+                }
                 if (neighbours.filter(n => Math.floor(n.r) == Math.floor(r)).length > 1) { // corner
                     r -= u ? um : nm;
                 } else { // edge
@@ -117,10 +132,14 @@ class PowerMap {
                 map.r[i] = r;
                 map.g[i] = g;
                 map.b[i] = b;
-                this.layer.setTile(
-                    x, y, String.fromCharCode(11034),
-                    `rgb(${this.colour(r)}, ${this.colour(g)}, ${this.colour(b)})`, null
-                );
+                if (r > 0 || g > 0 || b > 0) {
+                    this.layer.setTile(
+                        x, y, String.fromCharCode(11034),
+                        `rgb(${this.colour(r)}, ${this.colour(g)}, ${this.colour(b)})`, null
+                    );
+                } else {
+                    this.layer.setTile(x, y, ' ', null, null);
+                }
             }
         }
         this.map = map;

@@ -1,5 +1,10 @@
 class UnitMap {
+    game = null;
     map = {};
+
+    constructor(game) {
+        this.game = game;
+    }
 
     clear() {
         this.map = {};
@@ -42,6 +47,10 @@ class UnitMap {
     }
 
     canPlace(p, unit) {
+        const terrain = config.terrain[this.game.terrain.get(p.x, p.y)];
+        if (terrain.allowedUnits !== null && terrain.allowedUnits.indexOf(unit.constructor.name) === -1) {
+            return false;
+        }
         if (unit instanceof Pipe || unit instanceof Path) {
             const units = this.getUnits(p);
             return units.every(u => (
