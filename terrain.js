@@ -71,7 +71,7 @@ class Terrain {
     }
 
     get(x, y) {
-        return this.terrainMap[utility.hash(x, y)];
+        return this.terrainMap[utility.hash(x, y)] || 0;
     }
     
     serialize() {

@@ -58,14 +58,6 @@ class City extends Unit {
                 this.giveWorker(u.takeWorker());
             });
         }
-        // if (this.workerAmount < this.workerCapacity) {
-        //     const inputUnits = this.getInputs(map);
-        //     for (let unit of inputUnits) {
-        //         if (unit.workerAmount > 0 && this.workerAmount < this.workerCapacity && (unit instanceof Path)) {
-        //             this.giveWorker(unit.takeWorker());
-        //         }
-        //     }
-        // }
     }
 
     update(map) {

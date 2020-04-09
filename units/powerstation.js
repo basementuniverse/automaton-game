@@ -22,7 +22,7 @@ class PowerStation extends Unit {
         layer.foreground = 'white';
         layer.centered = true;
         layer.font = 'automaton';
-        layer.text = config.icons.power2;//config.icons.power1;
+        layer.text = config.icons.power2;
         this.layer = layer;
 
         const layer3 = this.activeTile.addLayer();
@@ -111,14 +111,13 @@ class PowerStation extends Unit {
         }
         this.running = this.checkRunning();
         if (this.running) {
-            const heartbeat = 0;//Math.max(0, utility.triangleWave(2, 1.5, this.ticks / config.updateRate) - 1);
             const colour = this.colour, amount = this.amount;
             this.game.powerMap.set(
                 this.position.x, this.position.y,
                 'h',
-                colour[0] * amount + heartbeat,
-                colour[1] * amount + heartbeat,
-                colour[2] * amount + heartbeat
+                colour[0] * amount,
+                colour[1] * amount,
+                colour[2] * amount
             );
             this.progress++;
         }

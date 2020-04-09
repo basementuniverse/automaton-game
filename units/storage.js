@@ -58,15 +58,6 @@ class Storage extends Unit {
                 this.giveProduct(u.takeProduct());
             });
         }
-
-        // if (this.productAmount < this.productCapacity) {
-        //     const inputUnits = this.getInputs(map);
-        //     for (let unit of inputUnits) {
-        //         if (unit.productAmount > 0 && this.productAmount < this.productCapacity && (unit instanceof Pipe)) {
-        //             this.giveProduct(unit.takeProduct());
-        //         }
-        //     }
-        // }
     }
 
     update(map) {

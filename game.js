@@ -30,7 +30,7 @@ class Game {
         // Set up game world
         this.buffer = new Tily.Buffer(this.width, this.height, {
             clampCamera: true,
-            initialScale: 32,//24,
+            initialScale: 20,
             minimumScale: 3,
             maximumScale: 200
         });
