@@ -88,12 +88,15 @@ class LineTool {
             this.inputCursor.position = tilePosition;
             this.outputCursor.position = tilePosition;
         } else {
-            if (vec.eq(tilePosition, this.inputCursor.position)) {
+            if (vec.eq(tilePosition, this.inputCursor.position)) { // click in same tile
                 this.callback(this.inputCursor.position, this.inputDirection, this.outputDirection);
-            } else {
+            } else { // click in another tile
                 const t = Object.keys(this.offsets)
                 .map(k => ({ offset: vec.add(this.offsets[k], this.inputCursor.position), direction: k }))
-                .find(o => vec.eq(tilePosition, o.offset));
+                .find(o => (    // check if the clicked tile is adjacent
+                    vec.eq(tilePosition, o.offset) &&
+                    o.direction !== this.inputDirection // prevent lines going back on themselves
+                ));
                 if (t !== undefined) {
                     this.callback(this.inputCursor.position, this.inputDirection, t.direction);
                     this.inputDirection = this.inverses[t.direction];
