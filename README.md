@@ -2,6 +2,8 @@
 
 https://basementuniverse.github.io/automaton-game/
 
+![Preview](preview.png)
+
 ## TODO
 
 * [x] factories
